@@ -9,6 +9,7 @@ public class Light {
     public Color3 intensity;
     
     //light constructor
+
     public Light(Vector3D l, Color3 i) {
         this.location = l;
         this.intensity = i;
