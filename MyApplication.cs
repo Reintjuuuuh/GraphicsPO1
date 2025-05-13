@@ -1,3 +1,4 @@
+using Assimp;
 using OpenTK.Mathematics;
 using System.Diagnostics;
 using System.Globalization;
@@ -39,6 +40,9 @@ namespace Template
                     screen.Plot(column, row, new Color3(0.5f, 0.5f, 0.5f));
                 }
             }
+
+            Light light = new Light(new Vector3D(100f, 100f, 1f), new Color3(0f, 0f, 1f));
+            screen.Plot((int)light.location.X, (int)light.location.Y, light.intensity);
 
             deltaTime += timer.Elapsed;
             frames++;

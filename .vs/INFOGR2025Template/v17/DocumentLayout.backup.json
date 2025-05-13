@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Rein\\OneDrive - Universiteit Utrecht\\Courses\\Graphics\\GraphicsPO1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5DF4789A-96A4-4DA5-9364-FCF2EAB1B414}|INFOGR2025Template.csproj|c:\\users\\rein\\onedrive - universiteit utrecht\\courses\\graphics\\graphicspo1\\myapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DF4789A-96A4-4DA5-9364-FCF2EAB1B414}|INFOGR2025Template.csproj|solutionrelative:myapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DF4789A-96A4-4DA5-9364-FCF2EAB1B414}|INFOGR2025Template.csproj|c:\\users\\rein\\onedrive - universiteit utrecht\\courses\\graphics\\graphicspo1\\template.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DF4789A-96A4-4DA5-9364-FCF2EAB1B414}|INFOGR2025Template.csproj|solutionrelative:template.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "template.cs",
+              "DocumentMoniker": "C:\\Users\\Rein\\OneDrive - Universiteit Utrecht\\Courses\\Graphics\\GraphicsPO1\\template.cs",
+              "RelativeDocumentMoniker": "template.cs",
+              "ToolTip": "C:\\Users\\Rein\\OneDrive - Universiteit Utrecht\\Courses\\Graphics\\GraphicsPO1\\template.cs",
+              "RelativeToolTip": "template.cs",
+              "ViewState": "AgIAALgAAAAAAAAAAAASwMMAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-13T09:22:20.423Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MyApplication.cs",
+              "DocumentMoniker": "C:\\Users\\Rein\\OneDrive - Universiteit Utrecht\\Courses\\Graphics\\GraphicsPO1\\MyApplication.cs",
+              "RelativeDocumentMoniker": "MyApplication.cs",
+              "ToolTip": "C:\\Users\\Rein\\OneDrive - Universiteit Utrecht\\Courses\\Graphics\\GraphicsPO1\\MyApplication.cs",
+              "RelativeToolTip": "MyApplication.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAYwCsAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-13T08:59:49.619Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
