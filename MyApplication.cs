@@ -2,6 +2,7 @@ using OpenTK.Mathematics;
 using System.Numerics;
 using System.Diagnostics;
 using System.Globalization;
+using System.Data.Common;
 
 namespace Template
 {
@@ -51,8 +52,9 @@ namespace Template
             Scene1 scene = new Scene1(primitives, lights);
             Raytracer raytracer = new Raytracer(scene, camera, screen);
             raytracer.Render();
+
             //................................
-            
+
 
             deltaTime += timer.Elapsed;
             frames++;
