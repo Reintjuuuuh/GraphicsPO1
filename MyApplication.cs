@@ -42,12 +42,12 @@ namespace Template
             }
 
             //ADDED MANUALY, NOT TEMPLATE.....
-            
-            
-            
+
+            //Console.WriteLine(new Sphere(new System.Numerics.Vector3(0, 0, 0), 10).Intersection(new Ray(new System.Numerics.Vector3(0, 0, -10), new System.Numerics.Vector3(0, 0, 1))).position);
+                
             List<Primitive> primitives = new List<Primitive>() {
                 //new Sphere(new System.Numerics.Vector3(0, 0, 20), 200),
-                new Sphere(new System.Numerics.Vector3(0, 0, 50), 20)
+                new Sphere(new System.Numerics.Vector3(0, 0, 40), 20)
             };
             List<Light> lights = new List<Light>();
             Camera camera = new Camera();
@@ -57,7 +57,7 @@ namespace Template
             //Debugger
             raytracer.RenderDebug();
             //Normal screen
-            //raytracer.Render(false);
+            raytracer.Render();
             //................................
             
 

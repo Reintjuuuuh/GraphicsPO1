@@ -18,18 +18,19 @@ public class Raytracer
 	}
 
 	public void Render() {
-
-		for(int row = (int) camera.screenPlane.downLeft.Y; row < (int) camera.screenPlane.upLeft.Y; row++) {
-			for(int col = (int) camera.screenPlane.upLeft.X; col < (int) camera.screenPlane.upRight.X; col++) {
-                Ray ray = new Ray(camera.position, new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
+		Surface debugSurface  = new(surface.width, surface.height);
+		for (int row = (int)camera.screenPlane.downLeft.Y; row < (int)camera.screenPlane.upLeft.Y; row++) {
+			for (int col = (int)camera.screenPlane.upLeft.X; col < (int)camera.screenPlane.upRight.X; col++) {
+				Ray ray = new Ray(camera.position, new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
 				List<Intersection> intersections = new();
-				foreach(Primitive primitive in scene.primitives) {
+
+				foreach (Primitive primitive in scene.primitives) {
 					Intersection intersection = primitive.Intersection(ray);
-					if(intersection != null) {
+					if (intersection != null) {
 						intersections.Add(intersection);
 					}
 				}
-				if(intersections.Count > 0) {
+				if (intersections.Count > 0) {
 					Intersection closestIntersection = intersections.Min();
 					surface.Plot(col + 200, row + 200, closestIntersection.primitive.color);
 
@@ -40,7 +41,7 @@ public class Raytracer
 		}
 	}
 
-	public void RenderDebug() {
+	public void RenderDebug() {		
 		for(int x = (int) (surface.width * -0.5); x < (int)(surface.width * 0.5);  x++) {
             for (int z = (int)(surface.height * -0.5); z < (int)(surface.height * 0.5); z++) {
                 surface.Plot(x + (int)(surface.width * 0.5), z + (int)(surface.height * 0.5), new Color3(0.5f, 0.5f, 0.5f));
