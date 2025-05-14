@@ -1,4 +1,5 @@
 using OpenTK.Mathematics;
+using System.Numerics;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -36,9 +37,22 @@ namespace Template
                 for (int column = 0; column < screen.width; column++)
                 {
                     // REPLACE THIS WITH THE CORRECT COLOR FOR THIS PIXEL FROM YOUR RAY TRACER
-                    screen.Plot(column, row, new Color3(0.5f, 0.5f, 0.5f));
+                    //screen.Plot(column, row, new Color3(0.5f, 0.5f, 0.5f));
                 }
             }
+
+            //ADDED MANUALY, NOT TEMPLATE.....
+            List<Primitive> primitives = new List<Primitive>() {
+                //new Sphere(new System.Numerics.Vector3(0, 0, 20), 200),
+                new Sphere(new System.Numerics.Vector3(0, 0, 0), 20)
+            };
+            List<Light> lights = new List<Light>();
+            Camera camera = new Camera();
+            Scene1 scene = new Scene1(primitives, lights);
+            Raytracer raytracer = new Raytracer(scene, camera, screen);
+            raytracer.Render();
+            //................................
+            
 
             deltaTime += timer.Elapsed;
             frames++;

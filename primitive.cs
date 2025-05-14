@@ -7,10 +7,11 @@ public abstract class Primitive
 	public Color3 color;
 	public Primitive()
 	{
-
+		color = new Color3(1, 0, 0);
 	}
 
-	public abstract Intersection? Intersection(Ray ray);
+
+    public abstract Intersection? Intersection(Ray ray);
 }
 
 public class Sphere : Primitive {
@@ -27,7 +28,7 @@ public class Sphere : Primitive {
 		float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
 		float b = ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z);
 		float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
-		float d = MathF.Sqrt(MathF.Pow(b, 2) - 4 * a * c);
+		float d = MathF.Pow(b, 2) - 4 * a * c;
 
 		if(d < 0) {
 			return null;
@@ -70,7 +71,7 @@ public class Plane : Primitive {
 }
 
 
-public class Intersection{
+public class Intersection : IComparable<Intersection>{
 	public Vector3 position;
 	public float distance;
 	public Primitive primitive;
@@ -82,5 +83,9 @@ public class Intersection{
 		this.primitive = primitive;
 		this.normal = normal;
 	}
+
+    public int CompareTo(Intersection? other) {
+		return distance.CompareTo(other.distance);
+    }
 }
 
