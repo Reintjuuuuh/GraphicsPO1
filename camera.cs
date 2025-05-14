@@ -14,7 +14,7 @@ public class Camera
         this.position = new Vector3(0, 0, 0);
         this.lookAtDirection = new Vector3(0, 0, 1);
         this.upDirection = new Vector3(0, 1, 0);
-        this.screenPlane = new ScreenPlane(new Vector3(-100, 100, 0), new Vector3(100, 100, 0), new Vector3(100, -100, 0), new Vector3(-100, -100, 0));
+        this.screenPlane = new ScreenPlane(new Vector3(-100, 100, 10), new Vector3(100, 100, 10), new Vector3(100, -100, 10), new Vector3(-100, -100, 10));
     }
 
 	public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, ScreenPlane screenPlane) {

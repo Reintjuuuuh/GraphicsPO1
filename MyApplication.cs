@@ -42,15 +42,22 @@ namespace Template
             }
 
             //ADDED MANUALY, NOT TEMPLATE.....
+            
+            
+            
             List<Primitive> primitives = new List<Primitive>() {
                 //new Sphere(new System.Numerics.Vector3(0, 0, 20), 200),
-                new Sphere(new System.Numerics.Vector3(0, 0, 0), 20)
+                new Sphere(new System.Numerics.Vector3(0, 0, 50), 20)
             };
             List<Light> lights = new List<Light>();
             Camera camera = new Camera();
             Scene1 scene = new Scene1(primitives, lights);
             Raytracer raytracer = new Raytracer(scene, camera, screen);
-            raytracer.Render();
+
+            //Debugger
+            raytracer.RenderDebug();
+            //Normal screen
+            //raytracer.Render(false);
             //................................
             
 
