@@ -48,7 +48,7 @@ namespace Template
                 
             List<Primitive> primitives = new List<Primitive>() {
                 //new Sphere(new System.Numerics.Vector3(0, 0, 20), 200),
-                new Sphere(new System.Numerics.Vector3(0, 0, 100), 40)
+                new Sphere(new System.Numerics.Vector3(0, 0, 80), 10)
             };
             List<Light> lights = new List<Light>();
             System.Numerics.Vector3 origin = new System.Numerics.Vector3(0, 0, 0);
