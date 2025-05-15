@@ -30,7 +30,7 @@ public class Sphere : Primitive {
 			for (int j = (int)(-radius - 1); j <= (int)(radius + 1); j++){
 				int l2 = i * i + j * j;
 				float r2 = radius * radius;
-				if (l2 < r2 + 20 && l2 > r2 - 20) {
+				if (l2 < r2 + 40 && l2 > r2 - 40) {
 					pixels.Add(new Vector3(i + position.X, 0, j + position.Z));
 				}
 			}
