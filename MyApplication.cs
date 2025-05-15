@@ -2,6 +2,7 @@ using OpenTK.Mathematics;
 using System.Numerics;
 using System.Diagnostics;
 using System.Globalization;
+using System.Data.Common;
 
 namespace Template
 {
@@ -46,8 +47,7 @@ namespace Template
             //Console.WriteLine(new Sphere(new System.Numerics.Vector3(0, 0, 0), 10).Intersection(new Ray(new System.Numerics.Vector3(0, 0, -10), new System.Numerics.Vector3(0, 0, 1))).position);
                 
             List<Primitive> primitives = new List<Primitive>() {
-                //new Sphere(new System.Numerics.Vector3(0, 0, 20), 200),
-                new Sphere(new System.Numerics.Vector3(0, 0, -20), 10)
+                new Sphere(new System.Numerics.Vector3(0, 0, 80), 10)
             };
             List<Light> lights = new List<Light>();
             System.Numerics.Vector3 origin = new System.Numerics.Vector3(0, 0, 0);
@@ -63,8 +63,9 @@ namespace Template
             //raytracer.RenderDebug();
             //Normal screen
             raytracer.Render();
+
             //................................
-            
+
 
             deltaTime += timer.Elapsed;
             frames++;
