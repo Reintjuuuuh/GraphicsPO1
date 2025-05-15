@@ -47,7 +47,7 @@ namespace Template
                 
             List<Primitive> primitives = new List<Primitive>() {
                 //new Sphere(new System.Numerics.Vector3(0, 0, 20), 200),
-                new Sphere(new System.Numerics.Vector3(0, 0, 40), 20)
+                new Sphere(new System.Numerics.Vector3(0, 0, 100), 40)
             };
             List<Light> lights = new List<Light>();
             Camera camera = new Camera();
@@ -55,7 +55,7 @@ namespace Template
             Raytracer raytracer = new Raytracer(scene, camera, screen);
 
             //Debugger
-            raytracer.RenderDebug();
+            //raytracer.RenderDebug();
             //Normal screen
             raytracer.Render();
             //................................

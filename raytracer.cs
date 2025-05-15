@@ -18,7 +18,6 @@ public class Raytracer
 	}
 
 	public void Render() {
-		Surface debugSurface  = new(surface.width, surface.height);
 		for (int row = (int)camera.screenPlane.downLeft.Y; row < (int)camera.screenPlane.upLeft.Y; row++) {
 			for (int col = (int)camera.screenPlane.upLeft.X; col < (int)camera.screenPlane.upRight.X; col++) {
 				Ray ray = new Ray(camera.position, new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
