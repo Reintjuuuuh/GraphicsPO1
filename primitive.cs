@@ -45,13 +45,15 @@ public class Sphere : Primitive {
 		float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
 		float d = MathF.Pow(b, 2) - 4 * a * c;
 
+		Intersection closestIntersection;
+		
 		if(d < 0) {
 			return null;
 		} else if(d == 0) {
 			float I = (-b) / (2 * a);
 			Vector3 intersectionPoint = ray.orgin + I * ray.directionVector;
 			float distance = Vector3.Distance(intersectionPoint, ray.orgin);
-			return new Intersection(intersectionPoint, distance, this, null);
+			closestIntersection = new Intersection(intersectionPoint, distance, this, null);
 		} else {
             float IMin = (-b - MathF.Sqrt(d))  / (2 * a);
 			float IPlus = (-b - MathF.Sqrt(d)) / (2 * a);
@@ -63,21 +65,37 @@ public class Sphere : Primitive {
 			float distancePlus = Vector3.Distance(intersectionPointPlus, ray.orgin);
 
             if(distanceMin < distancePlus) {
-				return new Intersection(intersectionPointMin, distanceMin, this, null);
+				closestIntersection = new Intersection(intersectionPointMin, distanceMin, this, null);
 			} else {
-                return new Intersection(intersectionPointPlus, distancePlus, this, null);
+                closestIntersection = new Intersection(intersectionPointPlus, distancePlus, this, null);
             }
         }
+
+		if(Vector3.Dot(Vector3.Normalize((closestIntersection.position - ray.orgin)), Vector3.Normalize(ray.directionVector)) >= 0) {
+			return closestIntersection;
+		} else {
+			return null;
+		}
 	}
 }
 
 public class Plane : Primitive {
 	public Vector3 normal;
 	public float distance;
+	public float d;
 
 	public Plane(Vector3 normal, float distance) {
 		this.normal = normal;
 		this.distance = distance;
+	}
+
+	public Plane(Vector3 normal) {
+        this.normal = normal;
+		//this.distance = 
+    }
+
+	public float distanceToOrigin() {
+		return 0;
 	}
 
     public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
@@ -85,7 +103,7 @@ public class Plane : Primitive {
     }
 
     public override Intersection? Intersection(Ray ray) {
-        throw new NotImplementedException();
+		return null;
     }
 }
 
