@@ -2,16 +2,17 @@
 using System.Numerics;
 using Template;
 
-public abstract class Primitive
+public abstract class Primitive : Visualizable
 {
 	public Color3 color;
 	public Primitive()
 	{
-		color = new Color3(1, 0, 0);
+		color = new Color3(0, 0, 1);
 	}
 
 
     public abstract Intersection? Intersection(Ray ray);
+	public abstract List<Vector3> getPixels(Scene1 scene, Camera camera);
 }
 
 public class Sphere : Primitive {
@@ -23,10 +24,24 @@ public class Sphere : Primitive {
         this.radius = radius;
     }
 
+	public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
+		List<Vector3> pixels = new List<Vector3>();
+		for (int i = (int)(-radius - 1); i <= (int)(radius + 1); i++) {
+			for (int j = (int)(-radius - 1); j <= (int)(radius + 1); j++){
+				int l2 = i * i + j * j;
+				float r2 = radius * radius;
+				if (l2 < r2 + 40 && l2 > r2 - 40) {
+					pixels.Add(new Vector3(i + position.X, 0, j + position.Z));
+				}
+			}
+		}
+		return pixels;
+	}
+
     public override Intersection? Intersection(Ray ray) {
 		//in de vorm ax^2+bx+c zoals conventie
 		float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
-		float b = ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z);
+		float b = (ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z)) * 2;
 		float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
 		float d = MathF.Pow(b, 2) - 4 * a * c;
 
@@ -64,6 +79,10 @@ public class Plane : Primitive {
 		this.normal = normal;
 		this.distance = distance;
 	}
+
+    public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
+        throw new NotImplementedException();
+    }
 
     public override Intersection? Intersection(Ray ray) {
         throw new NotImplementedException();

@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 ﻿using OpenTK.Compute.OpenCL;
+=======
+﻿using Assimp;
+using OpenTK.Compute.OpenCL;
+>>>>>>> 397332430a4a730271ee10f7132598967384efcc
 using System;
 using System.Data.Common;
 using System.Numerics;
@@ -8,79 +13,59 @@ public class Raytracer
 {
 	Scene1 scene;
 	Camera camera;
-	Surface surface;
-
-    public bool debug = false;
-
-	public Raytracer(Scene1 scene, Camera camera, Surface surface)
-	{
-		this.scene = scene;
+	Surface screen;
+	public Raytracer(Scene1 scene, Camera camera, Surface surface){
+        this.scene = scene;
 		this.camera = camera;
-		this.surface = surface;
+		this.screen = surface;
 	}
 
 	public void Render() {
-        for (int row = (int)camera.screenPlane.downLeft.Y; row < (int)camera.screenPlane.upLeft.Y; row++)
-        {
-            for (int col = (int)camera.screenPlane.upLeft.X; col < (int)camera.screenPlane.upRight.X; col++)
-            {
-                Ray ray = new Ray(new Vector3(col, row, camera.position.Z), camera.lookAtDirection);
-                List<Intersection> intersections = new();
-                foreach (Primitive primitive in scene.primitives) //TODO: this method should be in scene class.
-                {
-                    Intersection intersection = primitive.Intersection(ray);
-                    if (intersection != null)
-                    {
-                        intersections.Add(intersection);
-                    }
-                }
-                if (intersections.Count > 0)
-                {
-                    Intersection closestIntersection = intersections.Min();
-                    surface.Plot(col + 200, row + 200, closestIntersection.primitive.color);
-                }
-                else
-                {
-                    surface.Plot(col + 200, row + 200, new Color3(0.5f, 0.5f, 0.5f));
-                }
-            }
-        
-            if (row == (camera.screenPlane.upLeft.Y + camera.screenPlane.downLeft.Y)/2) //if middle row show debug output
-            {
-                for (int col = (int)camera.screenPlane.upLeft.X; col < (int)camera.screenPlane.upRight.X; col++)
-                {
-                    Ray ray = new Ray(new Vector3(col, row, camera.position.Z), camera.lookAtDirection);
-                    List<Intersection> intersections = new();
-                    foreach (Primitive primitive in scene.primitives)
-                    {
-                        Intersection intersection = primitive.Intersection(ray);
-                        if (intersection != null)
-                        {
-                            intersections.Add(intersection);
-                        }
-                    }
-                    if (intersections.Count > 0)
-                    {
-                        foreach (Intersection i in intersections)
-                        {
-                            surface.Plot((int)i.position.X + 400, (int)i.position.Z + 200, new Color3(0f, 1f, 0f));
-                        }
+		int debuggerOffsetX = ((3 * screen.width) / 4);
+		int debuggerOffsetY = ((7*screen.height) / 8);
 
-                        Intersection closestIntersection = intersections.Min();
+		for (int row = (int)camera.screenPlane.downLeft.Y; row < (int)camera.screenPlane.upLeft.Y; row++) {
+			for (int col = (int)camera.screenPlane.upLeft.X; col < (int)camera.screenPlane.upRight.X; col++) {
+				Ray ray = new Ray(camera.position, new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
+				List<Intersection> intersections = new();
 
-                        if (col % 10 == 0) //draw ray
-                        {
-                            surface.Line((int)ray.orgin.X + 400, (int)ray.orgin.Z + 200, (int)closestIntersection.position.X + 400, (int)closestIntersection.position.Z + 200, new Color3(0f, 0f, 1f));
+				foreach (Primitive primitive in scene.primitives) {
+					Intersection intersection = primitive.Intersection(ray);
+					if (intersection != null) {
+						intersections.Add(intersection);
+					}	
+				}
+				Intersection closestIntersection = null;
+                if (intersections.Count > 0) {
+                    closestIntersection = intersections.Min();
+                    screen.Plot(col + screen.width / 4, row + screen.height / 2, closestIntersection.primitive.color);
+
+                } else {
+                    screen.Plot(col + screen.width / 4, row + screen.height / 2, new Color3(0.5f, 0.5f, 0.5f));
+                }
+				
+				//Debugger
+				if (row == (camera.screenPlane.downLeft.Y + camera.screenPlane.upLeft.Y) / 2) {
+					screen.Plot((int)camera.position.X + debuggerOffsetX + 1, (int)-camera.position.Z + debuggerOffsetY + 1, new Color3(0.0f, 0.5f, 0.5f));
+					screen.Plot((int)camera.position.X + debuggerOffsetX, (int)-camera.position.Z + debuggerOffsetY + 1, new Color3(0.0f, 0.5f, 0.5f));
+					screen.Plot((int)camera.position.X + debuggerOffsetX + 1, (int)-camera.position.Z + debuggerOffsetY, new Color3(0.0f, 0.5f, 0.5f));
+					screen.Plot((int)camera.position.X + debuggerOffsetX, (int)-camera.position.Z + debuggerOffsetY, new Color3(0.0f, 0.5f, 0.5f));
+
+                    if (col % 10 == 0) {
+						if (closestIntersection != null) {
+							screen.Line((int)(ray.orgin.X + debuggerOffsetX), (int)(-ray.orgin.Z + debuggerOffsetY), (int)(closestIntersection.position.X + debuggerOffsetX), (int)(-closestIntersection.position.Z + debuggerOffsetY), new Color3(1f, 0f, 0f));
+						} else {
+							screen.Line((int)(ray.orgin.X + debuggerOffsetX), (int)(-ray.orgin.Z + debuggerOffsetY), (int)(ray.directionVector.X * 100 + debuggerOffsetX), (int)(-ray.directionVector.Z * 100 + debuggerOffsetY), new Color3(1f, 0f, 0f));
+						}
+					}
+
+                    foreach (Primitive primitive in scene.primitives) {
+                        foreach (Vector3 pixel in primitive.getPixels(scene, camera)) {
+                            screen.Plot((int)(pixel.X + debuggerOffsetX), (int)(-pixel.Z + debuggerOffsetY), primitive.color);
                         }
                     }
-                    else
-                    {
-                        surface.Plot(col + 400, row + 200, new Color3(0f, 0f, 0f));
-                    }
-                    
                 }
-                surface.Plot((int)camera.position.X + 400, (int)camera.position.Z + 200, new Color3(1f, 0f, 0f));
-            }
-        }
+			}
+		}
     }
 }
