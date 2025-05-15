@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-﻿using OpenTK.Compute.OpenCL;
-=======
+
 ﻿using Assimp;
 using OpenTK.Compute.OpenCL;
->>>>>>> 397332430a4a730271ee10f7132598967384efcc
 using System;
 using System.Data.Common;
 using System.Numerics;
