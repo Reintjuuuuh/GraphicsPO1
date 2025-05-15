@@ -5,13 +5,14 @@ using System.Data.Common;
 using System.Numerics;
 using Template;
 
-public class Raytracer {
+public class Raytracer
+{
 	Scene1 scene;
 	Camera camera;
 	Surface screen;
 
-	public Raytracer(Scene1 scene, Camera camera, Surface surface) {
-		this.scene = scene;
+	public Raytracer(Scene1 scene, Camera camera, Surface surface){
+        this.scene = scene;
 		this.camera = camera;
 		this.screen = surface;
 	}
@@ -29,17 +30,17 @@ public class Raytracer {
 					Intersection intersection = primitive.Intersection(ray);
 					if (intersection != null) {
 						intersections.Add(intersection);
-					}
+					}	
 				}
 				Intersection closestIntersection = null;
-				if (intersections.Count > 0) {
-					closestIntersection = intersections.Min();
-					screen.Plot(col + screen.width / 4, row + screen.height / 2, closestIntersection.primitive.color);
+                if (intersections.Count > 0) {
+                    closestIntersection = intersections.Min();
+                    screen.Plot(col + screen.width / 4, row + screen.height / 2, closestIntersection.primitive.color);
 
-				} else {
-					screen.Plot(col + screen.width / 4, row + screen.height / 2, new Color3(0.5f, 0.5f, 0.5f));
-				}
-
+                } else {
+                    screen.Plot(col + screen.width / 4, row + screen.height / 2, new Color3(0.5f, 0.5f, 0.5f));
+                }
+				
 				//Debugger
 				if (row == (camera.screenPlane.downLeft.Y + camera.screenPlane.upLeft.Y) / 2) {
 					screen.Plot((int)camera.position.X + debuggerOffsetX + 1, (int)-camera.position.Z + debuggerOffsetY + 1, new Color3(0.0f, 0.5f, 0.5f));
@@ -47,8 +48,7 @@ public class Raytracer {
 					screen.Plot((int)camera.position.X + debuggerOffsetX + 1, (int)-camera.position.Z + debuggerOffsetY, new Color3(0.0f, 0.5f, 0.5f));
 					screen.Plot((int)camera.position.X + debuggerOffsetX, (int)-camera.position.Z + debuggerOffsetY, new Color3(0.0f, 0.5f, 0.5f));
 
-
-					if (col % 10 == 0) {
+                    if (col % 10 == 0) {
 						if (closestIntersection != null) {
 							screen.Line((int)(ray.orgin.X + debuggerOffsetX), (int)(-ray.orgin.Z + debuggerOffsetY), (int)(closestIntersection.position.X + debuggerOffsetX), (int)(-closestIntersection.position.Z + debuggerOffsetY), new Color3(1f, 0f, 0f));
 						} else {
@@ -56,14 +56,13 @@ public class Raytracer {
 						}
 					}
 
-					foreach (Intersection intersection in intersections) {
-						screen.Plot((int)(intersection.position.X + debuggerOffsetX), (int)(-intersection.position.Z + debuggerOffsetY), new Color3(0, 0, 1));
-					}
-				}
+                    foreach (Primitive primitive in scene.primitives) {
+                        foreach (Vector3 pixel in primitive.getPixels(scene, camera)) {
+                            screen.Plot((int)(pixel.X + debuggerOffsetX), (int)(-pixel.Z + debuggerOffsetY), primitive.color);
+                        }
+                    }
+                }
 			}
 		}
-	}
+    }
 }
-
-
-
