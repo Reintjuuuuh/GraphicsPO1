@@ -59,9 +59,6 @@ namespace Template
             Scene1 scene = new Scene1(primitives, lights);
             Raytracer raytracer = new Raytracer(scene, camera, screen);
 
-            //Debugger
-            //raytracer.RenderDebug();
-            //Normal screen
             raytracer.Render();
 
             //................................
