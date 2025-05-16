@@ -56,7 +56,7 @@ public class Sphere : Primitive {
 			closestIntersection = new Intersection(intersectionPoint, distance, this, null);
 		} else {
             float IMin = (-b - MathF.Sqrt(d))  / (2 * a);
-			float IPlus = (-b - MathF.Sqrt(d)) / (2 * a);
+			float IPlus = (-b + MathF.Sqrt(d)) / (2 * a);
 
             Vector3 intersectionPointMin = ray.orgin + IMin * ray.directionVector;
             Vector3 intersectionPointPlus = ray.orgin + IPlus * ray.directionVector;
@@ -81,6 +81,7 @@ public class Sphere : Primitive {
 
 public class Plane : Primitive {
 	public Vector3 normal;
+	public Vector3 pointOnPlane;
 	public float distance;
 	public float d;
 
@@ -91,7 +92,7 @@ public class Plane : Primitive {
 
 	public Plane(Vector3 normal) {
         this.normal = normal;
-		//this.distance = 
+		this.d = normal.X * -pointOnPlane.X;
     }
 
 	public float distanceToOrigin() {
