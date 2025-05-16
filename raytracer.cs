@@ -20,7 +20,6 @@ public class Raytracer
 	public void Render() {
         float debuggerScale = 0.5f;
 
-
         int debuggerOffsetX = ((3 * screen.width) / 4);
 		int debuggerOffsetY = ((7 * screen.height) / 8);
 
@@ -32,21 +31,30 @@ public class Raytracer
 				Ray ray = new Ray(new Vector3(col, row, camera.screenPlane.upLeft.Z), new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
 				List<Intersection> intersections = new();
 
+				Intersection closestIntersection = null;
 				foreach (Primitive primitive in scene.primitives) {
 					Intersection intersection = primitive.Intersection(ray);
 					if (intersection != null) {
 						intersections.Add(intersection);
 					}	
 				}
-				Intersection closestIntersection = null;
-                if (intersections.Count > 0) {
-                    closestIntersection = intersections.Min();
-                    screen.Plot(col + screen.width / 4, row + screen.height / 2, closestIntersection.primitive.color);
-
-                } else {
-                    screen.Plot(col + screen.width / 4, row + screen.height / 2, new Color3(0.5f, 0.5f, 0.5f));
-                }
 				
+				if (intersections.Count > 0) {
+					closestIntersection = intersections.Min();
+					float grayScale = 1f;
+					if(closestIntersection.primitive is Sphere) {
+						Sphere sphere = closestIntersection.primitive as Sphere;
+						float a = Vector3.Distance(closestIntersection.position, camera.position);
+						float b = closestIntersection.primitive.Distance(camera.position);
+						float c = (1 / sphere.radius);
+
+                        grayScale = Math.Max(0, Math.Min(1, 1 - ((a - b) * c)));
+                    }
+                    screen.Plot(col + screen.width / 4, row + screen.height / 2, new Color3(grayScale, grayScale, grayScale));
+                } else {
+                    screen.Plot(col + screen.width / 4, row + screen.height / 2, new Color3(0, 0, 0));
+                }
+
 				//Debugger
 				if (row == (camera.screenPlane.downLeft.Y + camera.screenPlane.upLeft.Y) / 2) {
 					
@@ -68,6 +76,7 @@ public class Raytracer
                         }
                     }
                 }
+
 			}
 		}
     }

@@ -43,11 +43,12 @@ namespace Template
             }
 
             //ADDED MANUALY, NOT TEMPLATE.....
+            System.Numerics.Vector3 normal = new(0, 1, 0);
+            System.Numerics.Vector3 point = new(0, 0, 0);
+            Plane p = new Plane(normal, point);
 
-            //Console.WriteLine(new Sphere(new System.Numerics.Vector3(0, 0, 0), 10).Intersection(new Ray(new System.Numerics.Vector3(0, 0, -10), new System.Numerics.Vector3(0, 0, 1))).position);
-                
             List<Primitive> primitives = new List<Primitive>() {
-                new Sphere(new System.Numerics.Vector3(0, 0, 91), 10)
+                new Sphere(new System.Numerics.Vector3(0, 0, 400), 150)
             };
             List<Light> lights = new List<Light>();
             System.Numerics.Vector3 origin = new System.Numerics.Vector3(0, 0, 0);

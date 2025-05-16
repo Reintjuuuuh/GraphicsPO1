@@ -13,18 +13,24 @@ public abstract class Primitive : Visualizable
 
     public abstract Intersection? Intersection(Ray ray);
 	public abstract List<Vector3> getPixels(Scene1 scene, Camera camera);
+	public abstract float Distance(Vector3 point); 
 }
 
 public class Sphere : Primitive {
 	public Vector3 position;
 	public float radius;
+	public float distance;
 
 	public Sphere(Vector3 position, int radius) {
         this.position = position;
         this.radius = radius;
     }
 
-	public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
+    public override float Distance(Vector3 point) {
+		return Vector3.Distance(position, point) - radius;
+    }
+
+    public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
 		List<Vector3> pixels = new List<Vector3>();
 		for (int i = (int)(-radius - 1); i <= (int)(radius + 1); i++) {
 			for (int j = (int)(-radius - 1); j <= (int)(radius + 1); j++){
@@ -90,12 +96,17 @@ public class Plane : Primitive {
 		this.distance = distance;
 	}
 
-	public Plane(Vector3 normal) {
-        this.normal = normal;
-		this.d = normal.X * -pointOnPlane.X;
+	public Plane(Vector3 normal, Vector3 pointOnPlane) {
+		this.normal = normal;
+		this.pointOnPlane = pointOnPlane;
+		d = normal.X * -pointOnPlane.X + normal.Y * -pointOnPlane.Y + normal.Z * -pointOnPlane.Z;
     }
 
-	public float distanceToOrigin() {
+    public override float Distance(Vector3 point) {
+        throw new NotImplementedException();
+    }
+
+    public float distanceToOrigin() {
 		return 0;
 	}
 
@@ -104,8 +115,19 @@ public class Plane : Primitive {
     }
 
     public override Intersection? Intersection(Ray ray) {
-		return null;
-    }
+		//We use the following form: [x, y, z]^t = [p_x, p_y, p_z]^t + I * [d_x, d_y, d_z]^t
+		float factorI = normal.X * ray.directionVector.X + normal.Y * ray.directionVector.Y + normal.Z * ray.directionVector.Z;
+		float c = normal.X * ray.orgin.Y + normal.Y * ray.orgin.Y + normal.Z * ray.orgin.Z + d;
+		float I = -c / factorI;
+
+		 if(factorI == 0 && c != 0) {
+			return null;
+		} else {
+			Vector3 intersectionPoint = ray.orgin + ray.directionVector * I;
+			float distance = Vector3.Distance(intersectionPoint, ray.orgin);
+			return new Intersection(intersectionPoint, distance, this, null);
+		}	
+	}
 }
 
 
