@@ -105,6 +105,7 @@ public class Raytracer
                 Sphere sphere = closestIntersection.primitive as Sphere;
                 float a = Vector3.Distance(closestIntersection.position, camera.position);
                 float b = closestIntersection.primitive.Distance(camera.position);
+                b *= 0.001f; // looks better
                 float c = (1 / sphere.radius);
 
                 grayScale = Math.Max(0, Math.Min(1, 1 - ((a - b) * c)));

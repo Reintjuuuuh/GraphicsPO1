@@ -75,7 +75,7 @@ namespace Template
             Raytracer raytracer = new Raytracer(scene, camera, screen);
             //................................
 
-            bool debug = true;
+            bool debug = false;
 
             if (!debug)
             {
