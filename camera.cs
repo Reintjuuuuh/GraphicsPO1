@@ -5,7 +5,7 @@ using System.Numerics;
 public class Camera
 {
 	public Vector3 position = new Vector3(0, 0, 0);
-    public Vector3 lookAtDirection = new Vector3(0, 0, 1);
+    public Vector3 forwardDirection = new Vector3(0, 0, 1);
     public Vector3 upDirection = new Vector3(0, 1, 0);
     public Vector3 rightDirection = new Vector3(1, 0, 0);
     public ScreenPlane screenPlane = new ScreenPlane(new Vector3(-100, 100, 10), new Vector3(100, 100, 10), new Vector3(100, -100, 10), new Vector3(-100, -100, 10));
@@ -16,9 +16,9 @@ public class Camera
         
     }
     
-	public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, Vector3 rightDirection, ScreenPlane screenPlane) {
+	public Camera(Vector3 position, Vector3 forwardDirection, Vector3 upDirection, Vector3 rightDirection, ScreenPlane screenPlane) {
         this.position = position;
-        this.lookAtDirection = lookAtDirection;
+        this.forwardDirection = forwardDirection;
         this.upDirection = upDirection;
         this.rightDirection = rightDirection;
         this.screenPlane = screenPlane;

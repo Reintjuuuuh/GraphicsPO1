@@ -1,17 +1,8 @@
-//using OpenTK.Mathematics;
 using System.Numerics;
 using System.Diagnostics;
 using System.Globalization;
-using System.Data.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Windows.Input;
-using OpenTK.Windowing.Common;
-using System.ComponentModel;
-using OpenTK.Compute.OpenCL;
-using Assimp;
-using SixLabors.ImageSharp.PixelFormats;
 using OpenTK.Graphics.ES11;
-using System.Net;
 
 namespace Template
 {
@@ -23,7 +14,6 @@ namespace Template
         public Camera camera;
         public List<Primitive> primitives;
         public List<Light> lights;
-        public ScreenPlane screenplane;
         public Scene1 scene;
         public Raytracer raytracer;
 
@@ -44,16 +34,12 @@ namespace Template
 
             lights = new List<Light>();
 
-            Vector3 origin = new Vector3(0, 0, 0);
-
             Vector3 camPosition = new Vector3(0, 0, 0);
             Vector3 forwardDir = new Vector3(0, 0, 1);
             Vector3 upDir = new Vector3(0, 1, 0);
             Vector3 rightDir = Vector3.Normalize(Vector3.Cross(upDir, forwardDir));
 
-            screenplane = calculateScreenplane(camPosition, forwardDir, upDir, rightDir, screen.width, screen.height);
-
-            camera = new Camera(camPosition, forwardDir, upDir, rightDir, screenplane);
+            camera = new Camera(camPosition, forwardDir, upDir, rightDir, new ScreenPlane(Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero));
 
             scene = new Scene1(primitives, lights);
 
@@ -77,12 +63,12 @@ namespace Template
             Surface surfaceNormal = new Surface(halfWidth, totalHeight);
             Surface surfaceDebug = new Surface(halfWidth, totalHeight);
 
-            camera.screenPlane = calculateScreenplane(camera.position, camera.lookAtDirection, camera.upDirection, camera.rightDirection, halfWidth, totalHeight);
+            camera.screenPlane = calculateScreenplane(halfWidth, totalHeight);
 
             GL.Viewport(0, 0, halfWidth, totalHeight);
             RenderNormal(surfaceNormal);
 
-            camera.screenPlane = calculateScreenplane(camera.position, camera.lookAtDirection, camera.upDirection, camera.rightDirection, halfWidth, totalHeight);
+            camera.screenPlane = calculateScreenplane(halfWidth, totalHeight);
 
             GL.Viewport(halfWidth, 0, halfWidth, totalHeight);
             RenderDebug(surfaceDebug);
@@ -107,7 +93,7 @@ namespace Template
             screen.PrintOutlined(timeString, 2, 2, new Color3(1,1,1));
         }
 
-        public ScreenPlane calculateScreenplane(Vector3 camPosition, Vector3 forwardDir, Vector3 upDir, Vector3 rightDir, int screenWidth, int screenHeight)
+        public ScreenPlane calculateScreenplane(int screenWidth, int screenHeight)
         {
             float fov = MathF.PI / 3f;
 
@@ -117,9 +103,9 @@ namespace Template
             float aspectRatio = (float)screenWidth / (float)screenHeight;
             float halfWidth = halfHeight * aspectRatio;
 
-            Vector3 center = camPosition + forwardDir * focalDistance;
-            Vector3 up = upDir * halfHeight;
-            Vector3 right = rightDir * halfWidth;
+            Vector3 center = camera.position + camera.forwardDirection * focalDistance;
+            Vector3 up = camera.upDirection * halfHeight;
+            Vector3 right = camera.rightDirection * halfWidth;
 
             Vector3 upLeft = center + up - right;
             Vector3 upRight = center + up + right;
@@ -134,7 +120,7 @@ namespace Template
         {
             //calc vector3 differnce with camera position
             Vector3 camPosition = camera.position;
-            Vector3 forward = camera.lookAtDirection;
+            Vector3 forward = camera.forwardDirection;
             Vector3 right = camera.rightDirection;
 
             Vector3 delta = WorldPoint - camPosition;
@@ -275,7 +261,7 @@ namespace Template
                 //trace ray
                 Vector3 direction = Vector3.Normalize(worldPoint - camera.position);
 
-                Intersection intersect = raytracer.DebugRay(camera.position, direction);
+                Intersection? intersect = raytracer.DebugRay(camera.position, direction);
 
                 if (intersect != null)
                 {
@@ -290,7 +276,33 @@ namespace Template
         public void HandleKeyboardInput(KeyboardState keyboard, float deltaTime)
         {
             float movementSpeed = 50f;
-            //Vector3 movementVector = Vector3()
+            Vector3 movementVector = Vector3.Zero;
+
+            if (keyboard[Keys.W]) movementVector += camera.forwardDirection;
+            if (keyboard[Keys.A]) movementVector -= camera.rightDirection;
+            if (keyboard[Keys.S]) movementVector -= camera.forwardDirection;
+            if (keyboard[Keys.D]) movementVector += camera.rightDirection;
+            if (keyboard[Keys.Space]) movementVector += camera.upDirection;
+            if (keyboard[Keys.LeftShift]) movementVector -= camera.upDirection;
+
+            camera.position += movementVector * deltaTime * movementSpeed;
+        }
+        public void HandleMouseInput(float deltaX, float deltaY)
+        {
+            float sensitivity = 0.005f;
+
+            float horizontal = deltaX * sensitivity;
+            float vertical = deltaY * sensitivity;
+
+            Quaternion horizontalRotation = Quaternion.CreateFromAxisAngle(camera.upDirection, horizontal);
+            Quaternion verticalRotation = Quaternion.CreateFromAxisAngle(camera.rightDirection, vertical);
+
+            Quaternion orientation = Quaternion.Normalize(horizontalRotation * verticalRotation);
+
+            //recreate three camera vectors
+            camera.forwardDirection = Vector3.Transform(camera.forwardDirection, orientation);
+            camera.upDirection = Vector3.Transform(camera.upDirection, orientation);
+            camera.rightDirection = Vector3.Cross(camera.upDirection, camera.forwardDirection);
         }
     }
 }

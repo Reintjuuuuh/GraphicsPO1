@@ -178,7 +178,7 @@ namespace Template
             var keyboard = KeyboardState;
             if (keyboard[Keys.Escape]) terminated = true;
 
-            app.HandleKeyboardInput(keyboard, (float)e.Time);
+            app?.HandleKeyboardInput(keyboard, (float)e.Time);
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
@@ -225,6 +225,36 @@ namespace Template
             using OpenTKApp app = new();
             app.UpdateFrequency = 30.0;
             app.Run();
+        }
+
+
+
+
+
+        public bool mouseDown = false;
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            mouseDown = true;
+        }
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            mouseDown = false;
+        }
+
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (mouseDown)
+            {
+                app?.HandleMouseInput(e.DeltaX, e.DeltaY);
+            }
         }
     }
 }
