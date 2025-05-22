@@ -80,9 +80,9 @@ public class Raytracer
 	//	}
  //   }
 
-	public Color3 GetPixelColor(int row, int col)
-	{
-        Ray ray = new Ray(new Vector3(col, row, camera.screenPlane.upLeft.Z), new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
+	public Color3 TraceRay(Vector3 cameraPos, Vector3 direction)
+    {
+        Ray ray = new Ray(cameraPos, direction);
 
         List<Intersection> intersections = new();
 
@@ -105,7 +105,6 @@ public class Raytracer
                 Sphere sphere = closestIntersection.primitive as Sphere;
                 float a = Vector3.Distance(closestIntersection.position, camera.position);
                 float b = closestIntersection.primitive.Distance(camera.position);
-                b *= 0.001f; // looks better
                 float c = (1 / sphere.radius);
 
                 grayScale = Math.Max(0, Math.Min(1, 1 - ((a - b) * c)));
@@ -118,9 +117,9 @@ public class Raytracer
         }
 	}
 
-    public Intersection? DebugRay(int row, int col)
+    public Intersection? DebugRay(Vector3 cameraPos, Vector3 direction)
     {
-        Ray ray = new Ray(new Vector3(col, row, camera.screenPlane.upLeft.Z), new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
+        Ray ray = new Ray(cameraPos, direction);
 
         List<Intersection> intersections = new();
 
@@ -140,7 +139,9 @@ public class Raytracer
         }
         else
         {
-            return null;
+            //create fake intersection far away.
+            Vector3 intersectionPoint = ray.orgin + ray.directionVector * 1000;
+            return new Intersection(intersectionPoint, Vector3.Distance(intersectionPoint, ray.orgin), null, null);
         }
     }
 }

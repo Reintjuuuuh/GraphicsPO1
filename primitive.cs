@@ -5,6 +5,7 @@ using Template;
 public abstract class Primitive : Visualizable
 {
 	public Color3 color;
+	public Vector3 position;
 	public Primitive()
 	{
 		color = new Color3(0, 0, 1);
@@ -17,7 +18,7 @@ public abstract class Primitive : Visualizable
 }
 
 public class Sphere : Primitive {
-	public Vector3 position;
+	
 	public float radius;
 	public float distance;
 
