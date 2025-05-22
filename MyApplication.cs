@@ -138,7 +138,7 @@ namespace Template
         {
             int screenX = screen.width / 2;
             int screenY = screen.height / 2;
-            for (int row = -screenY; row < screenY; row++)
+            Parallel.For(-screenY, screenY, row =>
             {
                 for (int col = -screenX; col < screenX; col++)
                 {
@@ -164,7 +164,7 @@ namespace Template
 
                     screen.Plot(col + screenX, row + screenY, pixelcol);
                 }
-            }
+            }); 
         }
         float scale = 1f; // projection scale (zoom out)
         private void RenderDebug(Surface screen)
