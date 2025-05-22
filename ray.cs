@@ -2,7 +2,7 @@
 using System;
 using System.Numerics;
 
-public class Ray : Visualizable{
+public class Ray{
 	public Vector3 orgin;
 	public Vector3 directionVector;
 		

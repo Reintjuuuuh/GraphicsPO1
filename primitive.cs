@@ -2,7 +2,7 @@
 using System.Numerics;
 using Template;
 
-public abstract class Primitive : Visualizable
+public abstract class Primitive
 {
 	public Color3 color;
 	public Vector3 position;
@@ -13,7 +13,6 @@ public abstract class Primitive : Visualizable
 
 
     public abstract Intersection? Intersection(Ray ray);
-	public abstract List<Vector3> getPixels(Scene1 scene, Camera camera);
 	public abstract float Distance(Vector3 point); 
 }
 
@@ -30,20 +29,6 @@ public class Sphere : Primitive {
     public override float Distance(Vector3 point) {
 		return Vector3.Distance(position, point) - radius;
     }
-
-    public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
-		List<Vector3> pixels = new List<Vector3>();
-		for (int i = (int)(-radius - 1); i <= (int)(radius + 1); i++) {
-			for (int j = (int)(-radius - 1); j <= (int)(radius + 1); j++){
-				int l2 = i * i + j * j;
-				float r2 = radius * radius;
-				if (l2 < r2 + 40 && l2 > r2 - 40) {
-					pixels.Add(new Vector3(i + position.X, 0, j + position.Z));
-				}
-			}
-		}
-		return pixels;
-	}
 
     public override Intersection? Intersection(Ray ray) {
 		//in de vorm ax^2+bx+c zoals conventie
@@ -110,10 +95,6 @@ public class Plane : Primitive {
     public float distanceToOrigin() {
 		return 0;
 	}
-
-    public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
-        throw new NotImplementedException();
-    }
 
     public override Intersection? Intersection(Ray ray) {
 		//We use the following form: [x, y, z]^t = [p_x, p_y, p_z]^t + I * [d_x, d_y, d_z]^t

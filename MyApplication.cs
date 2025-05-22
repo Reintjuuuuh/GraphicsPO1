@@ -38,7 +38,7 @@ namespace Template
         public void Init()
         {
             primitives = new List<Primitive>() { //TODO: we maken nu elke tick een nieuwe camera, primitves, light, etc.
-                new Sphere(new System.Numerics.Vector3(0, 20, 500), 200), //TODO: bug als je y coordinaat verhoogt in debug
+                new Sphere(new System.Numerics.Vector3(0, 0, 500), 200), //TODO: bug als je y coordinaat verhoogt in debug
                 new Sphere(new System.Numerics.Vector3(90, 0, 200), 10) //TODO: bug als je y coordinaat verhoogt in debug
             };
 
@@ -286,7 +286,5 @@ namespace Template
                 }
             }
         }
-
-        
     }
 }
