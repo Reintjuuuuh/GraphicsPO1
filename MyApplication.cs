@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.ES11;
+using OpenTK.Windowing.Common;
 
 namespace Template
 {
@@ -93,9 +94,10 @@ namespace Template
             screen.PrintOutlined(timeString, 2, 2, new Color3(1,1,1));
         }
 
+        public int fovDegrees = 90;
         public ScreenPlane calculateScreenplane(int screenWidth, int screenHeight)
         {
-            float fov = MathF.PI / 3f;
+            float fov = fovDegrees * (MathF.PI / 180);
 
             float focalDistance = 100f;
 
@@ -128,7 +130,8 @@ namespace Template
             float x = Vector3.Dot(delta, right);
             float y = Vector3.Dot(delta, forward);
 
-            return new Vector2(x, -(y-screen.height/2));
+            //return new Vector2(x, -(y-screen.height/2));
+            return new Vector2(x, -y);
         }
 
         private void RenderNormal(Surface screen)
@@ -163,14 +166,15 @@ namespace Template
                 }
             }
         }
+        float scale = 1f; // projection scale (zoom out)
         private void RenderDebug(Surface screen)
         {
             int screenX = screen.width / 2;
             int screenY = screen.height / 2;
 
             //get all worldccoordinates as vector 3. Convert to screenpixels and draw.
-            float scale = 0.9f; // projection scale (zoom out)
-            Vector2 middleOfScreen = new Vector2(screenX, screenY);
+            
+            Vector2 middleOfScreen = new Vector2(screenX, screenY + 150); //+150 to center the camera towards the bottom of the screen
 
             //Project camera
             Vector2 camProjection = ProjectToPixel(camera.position);
@@ -209,7 +213,7 @@ namespace Template
                     }
 
                     int pixelRadius = (int)(crossSectionRadius * scale + 0.5f); // always force at least one pixel.
-                    ;
+                    
                     int cx = (int)primitivePoint2d.X;
                     int cy = (int)primitivePoint2d.Y;
                     int x = pixelRadius;
@@ -303,6 +307,17 @@ namespace Template
             camera.forwardDirection = Vector3.Transform(camera.forwardDirection, orientation);
             camera.upDirection = Vector3.Transform(camera.upDirection, orientation);
             camera.rightDirection = Vector3.Cross(camera.upDirection, camera.forwardDirection);
+        }
+        public void HandleMouseScroll(MouseWheelEventArgs e, Vector2 mousePos)
+        {
+            if (mousePos.X > screen.width/2) //mouse is in debug screen
+            {
+                scale = Math.Clamp(scale - (int)e.OffsetY * 0.1f, 0.1f, 3f); //clamp FOV between 0 and 180 to prevent shenenigans
+            } 
+            else //mouse is in normal render
+            {
+                fovDegrees = Math.Clamp(fovDegrees - (int)e.OffsetY, 0, 180); //clamp FOV between 0 and 180 to prevent shenenigans
+            }
         }
     }
 }

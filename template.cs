@@ -245,6 +245,12 @@ namespace Template
 
             mouseDown = false;
         }
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            app?.HandleMouseScroll(e, (System.Numerics.Vector2)MousePosition);
+        }
 
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
