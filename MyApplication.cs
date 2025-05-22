@@ -28,10 +28,16 @@ namespace Template
         // initialize
         public void Init()
         {
-            primitives = new List<Primitive>() { //TODO: we maken nu elke tick een nieuwe camera, primitves, light, etc.
-                new Sphere(new Vector3(0, 0, 500), 200), //TODO: bug als je y coordinaat verhoogt in debug
-                new Sphere(new Vector3(90, 0, 200), 10) //TODO: bug als je y coordinaat verhoogt in debug
+            primitives = new List<Primitive>() {
+                //new Sphere(new Vector3(0, 0, 500), 200), 
+                //new Sphere(new Vector3(90, 0, 200), 10),
             };
+            int primitiveCount = 20;
+            Random random = new Random();
+            for (int i = 0; i < primitiveCount; i++)
+            {
+                primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400)));
+            }
 
             lights = new List<Light>();
 
