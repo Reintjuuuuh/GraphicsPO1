@@ -138,6 +138,12 @@ namespace Template
         {
             int screenX = screen.width / 2;
             int screenY = screen.height / 2;
+            //get screenplane points
+            Vector3 upLeft = camera.screenPlane.upLeft;
+            Vector3 upRight = camera.screenPlane.upRight;
+            Vector3 downRight = camera.screenPlane.downRight;
+            Vector3 downLeft = camera.screenPlane.downLeft;
+
             Parallel.For(-screenY, screenY, row =>
             {
                 for (int col = -screenX; col < screenX; col++)
@@ -145,12 +151,6 @@ namespace Template
                     //normalize to 0-1
                     float u = (col + screenX) / (float)screen.width;
                     float v = (row + screenY) / (float)screen.height;
-
-                    //get screenplane points
-                    Vector3 upLeft = camera.screenPlane.upLeft;
-                    Vector3 upRight = camera.screenPlane.upRight;
-                    Vector3 downRight = camera.screenPlane.downRight;
-                    Vector3 downLeft = camera.screenPlane.downLeft;
 
                     //calculate the worlpoint coordinates of the pixel
                     Vector3 top = Vector3.Lerp(upLeft, upRight, u);
@@ -174,7 +174,7 @@ namespace Template
 
             //get all worldccoordinates as vector 3. Convert to screenpixels and draw.
             
-            Vector2 middleOfScreen = new Vector2(screenX, screenY + 150); //+150 to center the camera towards the bottom of the screen
+            Vector2 middleOfScreen = new Vector2(screenX, screenY + (screen.height / 2) * 0.8f); //+150 to center the camera towards the bottom of the screen
 
             //Project camera
             Vector2 camProjection = ProjectToPixel(camera.position);
