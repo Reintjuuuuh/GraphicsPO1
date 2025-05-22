@@ -82,24 +82,60 @@ public class Raytracer
 
 	public Color3 GetPixelColor(int row, int col)
 	{
-        Ray ray = new Ray(new Vector3(col, row, camera.screenPlane.upLeft.Z), new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
+        Ray viewRay = new Ray(new Vector3(col, row, camera.screenPlane.upLeft.Z), new Vector3(col, row, camera.screenPlane.upLeft.Z) - camera.position);
 
-        List<Intersection> intersections = new();
+        List<Intersection> viewIntersections = GetIntersections(viewRay);
 
-        Intersection closestIntersection = null;
-        foreach (Primitive primitive in scene.primitives)
+        if (viewIntersections.Count > 0)
         {
-            Intersection intersection = primitive.Intersection(ray);
-            if (intersection != null)
-            {
-                intersections.Add(intersection);
+            Intersection closestIntersection = viewIntersections.Min();
+            
+            //Finding intersection points that the light also hits
+            //Shoot for each light a ray from the primitive intersection to the light source
+            //For now this only works with one light
+            foreach(Light light in scene.lights) {
+                Vector3 direction = light.location - closestIntersection.position;
+                Vector3 origin = closestIntersection.position;
+                Ray lightRay = new Ray(origin, direction);
+                
+                //Check for intersections of the light ray
+                List<Intersection> lightIntersections = GetIntersections(lightRay);
+
+                //If there is one check if it is between the light and the primitive
+                float epsilon = 0.001f;
+                bool primitiveBetweenLight = false;
+                foreach (Intersection intersection in lightIntersections) {
+                    float distancePrimaryToLight = Vector3.Distance(closestIntersection.position, light.location);
+                    float distanceIntersectToLight = Vector3.Distance(intersection.position, light.location);
+                    float distanceSecondToPrimary = Vector3.Distance(closestIntersection.position, intersection.secondPoint);
+                    if ((distanceIntersectToPrimary > epsilon && distancePrimaryToLight > distanceIntersectToLight) || distanceSecondToPrimary < distanceLightToPrimary) {
+                        primitiveBetweenLight = true;
+                        break;
+                    }
+                }
+
+                if (primitiveBetweenLight) {
+                    return new Color3(1f, 0.15f, 0.15f);
+                } else {
+                    //Calculate light color
+                    Color3 ambientLight = new Color3(0.15f, 0.15f, 0.15f);
+                    float r = closestIntersection.primitive.Distance(light.location);
+
+                    float dotProduct = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(lightRay.directionVector)), 0);
+
+                    float R = (light.intensity.R * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.R + ambientLight.R;
+                    float G = (light.intensity.G * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.G + ambientLight.G;
+                    float B = (light.intensity.B * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.B + ambientLight.B;
+
+                    Color3 Color = (R, G, B);
+                    return Color;
+
+                }
             }
-        }
+            //In case of no lights
+            return new Color3(0, 0, 0);
 
-        if (intersections.Count > 0)
-        {
-            closestIntersection = intersections.Min();
-            float grayScale = 1f;
+            /*float grayScale = 1f;
             if (closestIntersection.primitive is Sphere)
             {
                 Sphere sphere = closestIntersection.primitive as Sphere;
@@ -111,6 +147,7 @@ public class Raytracer
                 grayScale = Math.Max(0, Math.Min(1, 1 - ((a - b) * c)));
             }
             return new Color3(grayScale, grayScale, grayScale);
+            */
         }
         else
         {
@@ -142,5 +179,18 @@ public class Raytracer
         {
             return null;
         }
+    }
+
+    public List<Intersection> GetIntersections(Ray ray) {
+        List<Intersection> intersections = new();
+
+        foreach (Primitive primitive in scene.primitives) {
+            Intersection intersection = primitive.Intersection(ray);
+            if (intersection != null) {
+                intersections.Add(intersection);
+            }
+        }
+
+        return intersections;
     }
 }

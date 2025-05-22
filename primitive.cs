@@ -52,14 +52,17 @@ public class Sphere : Primitive {
 		float d = MathF.Pow(b, 2) - 4 * a * c;
 
 		Intersection closestIntersection;
-		
+
+		//Calculate normal
+
 		if(d < 0) {
 			return null;
 		} else if(d == 0) {
 			float I = (-b) / (2 * a);
 			Vector3 intersectionPoint = ray.orgin + I * ray.directionVector;
 			float distance = Vector3.Distance(intersectionPoint, ray.orgin);
-			closestIntersection = new Intersection(intersectionPoint, distance, this, null);
+			Vector3 normal = intersectionPoint - this.position;  
+			closestIntersection = new Intersection(intersectionPoint, distance, this, normal);
 		} else {
             float IMin = (-b - MathF.Sqrt(d))  / (2 * a);
 			float IPlus = (-b + MathF.Sqrt(d)) / (2 * a);
@@ -70,10 +73,14 @@ public class Sphere : Primitive {
 			float distanceMin = Vector3.Distance(intersectionPointMin, ray.orgin);
 			float distancePlus = Vector3.Distance(intersectionPointPlus, ray.orgin);
 
-            if(distanceMin < distancePlus) {
-				closestIntersection = new Intersection(intersectionPointMin, distanceMin, this, null);
+            if (distanceMin < distancePlus) {
+				Vector3 normal = intersectionPointMin - this.position;
+				closestIntersection = new Intersection(intersectionPointMin, distanceMin, this, normal);
+				closestIntersection.secondPoint = intersectionPointPlus;
 			} else {
-                closestIntersection = new Intersection(intersectionPointPlus, distancePlus, this, null);
+				Vector3 normal = intersectionPointPlus - this.position;
+                closestIntersection = new Intersection(intersectionPointPlus, distancePlus, this, normal);
+                closestIntersection.secondPoint = intersectionPointMin;
             }
         }
 
@@ -124,8 +131,8 @@ public class Plane : Primitive {
 			return null;
 		} else {
 			Vector3 intersectionPoint = ray.orgin + ray.directionVector * I;
-			float distance = Vector3.Distance(intersectionPoint, ray.orgin);
-			return new Intersection(intersectionPoint, distance, this, null);
+			float distance = Vector3.Distance(intersectionPoint, ray.orgin);;
+			return new Intersection(intersectionPoint, distance, this, normal);
 		}	
 	}
 }
@@ -133,15 +140,16 @@ public class Plane : Primitive {
 
 public class Intersection : IComparable<Intersection>{
 	public Vector3 position;
+	public Vector3 secondPoint;
 	public float distance;
 	public Primitive primitive;
-	public Vector3? normal;
+	public Vector3 normal;
 
-	public Intersection(Vector3 position, float distance, Primitive primitive, Vector3? normal) {
+	public Intersection(Vector3 position, float distance, Primitive primitive, Vector3 normal) {
 		this.position = position;
 		this.distance = distance;
 		this.primitive = primitive;
-		this.normal = normal;
+		this.normal = Vector3.Normalize(normal);
 	}
 
     public int CompareTo(Intersection? other) {

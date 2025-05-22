@@ -34,16 +34,13 @@ namespace Template
         private TimeSpan deltaTime = new();
         private uint frames = 0;
         private string timeString = "---- ms/frame";
+
         public void Tick()
         {
             timer.Restart();
-
             screen.Clear(0);
 
-            
-
             //ADDED MANUALY, NOT TEMPLATE.....
-
             int screenX = screen.width / 2;
             int screenY = screen.height / 2;
 
@@ -52,10 +49,12 @@ namespace Template
             Plane p = new Plane(normal, point);
 
             List<Primitive> primitives = new List<Primitive>() { //TODO: we maken nu elke tick een nieuwe camera, primitves, light, etc.
-                new Sphere(new System.Numerics.Vector3(0, 0, 600), 450) //TODO: bug als je y coordinaat verhoogt in debug
+                new Sphere(new System.Numerics.Vector3(0, 0, 500), 200) //TODO: bug als je y coordinaat verhoogt in debug
             };
-            
-            List<Light> lights = new List<Light>();
+
+            List<Light> lights = new List<Light>() {
+                new Light(new System.Numerics.Vector3(-100, 0, 200), new Color3(2, 2, 2))
+            };
             
             System.Numerics.Vector3 origin = new System.Numerics.Vector3(0, 0, 0);
 
