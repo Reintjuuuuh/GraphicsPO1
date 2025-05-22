@@ -32,23 +32,30 @@ public class Sphere : Primitive {
 
     public override Intersection? Intersection(Ray ray) {
 		//in de vorm ax^2+bx+c zoals conventie
-		float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
-		float b = (ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z)) * 2;
-		float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
-		float d = MathF.Pow(b, 2) - 4 * a * c;
+		//neem aan dat de directie normalized is, dan is a 1. Sneller
+		//float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
+		Vector3 origin = ray.orgin - position;
 
-		Intersection closestIntersection;
+		float b = 2f * Vector3.Dot(ray.directionVector, origin);
+		float c = Vector3.Dot(origin, origin) - radius * radius;
+		float d = b * b - 4f * c;
+
+        //float b = (ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z)) * 2;
+        //float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
+        //float d = MathF.Pow(b, 2) - 4 * c; //removed times a because 1
+
+        Intersection closestIntersection;
 		
 		if(d < 0) {
 			return null;
 		} else if(d == 0) {
-			float I = (-b) / (2 * a);
-			Vector3 intersectionPoint = ray.orgin + I * ray.directionVector;
+			float I = (-b) / (2); //removed times a because 1
+            Vector3 intersectionPoint = ray.orgin + I * ray.directionVector;
 			float distance = Vector3.Distance(intersectionPoint, ray.orgin);
 			closestIntersection = new Intersection(intersectionPoint, distance, this, null);
 		} else {
-            float IMin = (-b - MathF.Sqrt(d))  / (2 * a);
-			float IPlus = (-b + MathF.Sqrt(d)) / (2 * a);
+            float IMin = (-b - MathF.Sqrt(d))  / (2); //removed times a because 1
+            float IPlus = (-b + MathF.Sqrt(d)) / (2); //removed times a because 1
 
             Vector3 intersectionPointMin = ray.orgin + IMin * ray.directionVector;
             Vector3 intersectionPointPlus = ray.orgin + IPlus * ray.directionVector;
