@@ -229,14 +229,11 @@ namespace Template
             screen.PrintOutlined(timeString, 2, 2, Color4.White);
         }
 
-
-        public float fov, focalDistance;
-
         public ScreenPlane calculateScreenplane(System.Numerics.Vector3 camPosition, System.Numerics.Vector3 forwardDir, System.Numerics.Vector3 upDir, System.Numerics.Vector3 rightDir)
         {
-            fov = MathF.PI / 5f;
+            float fov = MathF.PI / 3f;
 
-            focalDistance = 100f;
+            float focalDistance = 100f;
 
             float halfHeight = MathF.Tan(fov*0.5f) * focalDistance;
             float aspectRatio = (float)screen.width / (float)screen.height;
