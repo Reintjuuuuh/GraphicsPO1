@@ -157,6 +157,13 @@ namespace Template
             base.OnResize(e);
             // called upon window resize. Note: does not change the size of the pixel buffer.
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+
+            var newSurface = new Surface(ClientSize.X, ClientSize.Y);
+            app.screen = newSurface;
+
+            GL.DeleteTexture(screenID);
+            screenID = newSurface.GenTexture();
+
             if (allowPrehistoricOpenGL)
             {
                 GL.MatrixMode(MatrixMode.Projection);
@@ -175,7 +182,7 @@ namespace Template
         {
             base.OnRenderFrame(e);
             // called once per frame; render
-            app?.Tick();
+            app?.Tick(ClientSize.X, ClientSize.Y);
             if (terminated)
             {
                 Close();
