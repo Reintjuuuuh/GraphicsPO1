@@ -1,4 +1,4 @@
-using OpenTK.Mathematics;
+//using OpenTK.Mathematics;
 using System.Numerics;
 using System.Diagnostics;
 using System.Globalization;
@@ -38,18 +38,18 @@ namespace Template
         public void Init()
         {
             primitives = new List<Primitive>() { //TODO: we maken nu elke tick een nieuwe camera, primitves, light, etc.
-                new Sphere(new System.Numerics.Vector3(0, 0, 500), 200), //TODO: bug als je y coordinaat verhoogt in debug
-                new Sphere(new System.Numerics.Vector3(90, 0, 200), 10) //TODO: bug als je y coordinaat verhoogt in debug
+                new Sphere(new Vector3(0, 0, 500), 200), //TODO: bug als je y coordinaat verhoogt in debug
+                new Sphere(new Vector3(90, 0, 200), 10) //TODO: bug als je y coordinaat verhoogt in debug
             };
 
             lights = new List<Light>();
 
-            System.Numerics.Vector3 origin = new System.Numerics.Vector3(0, 0, 0);
+            Vector3 origin = new Vector3(0, 0, 0);
 
-            System.Numerics.Vector3 camPosition = new System.Numerics.Vector3(0, 0, 0);
-            System.Numerics.Vector3 forwardDir = new System.Numerics.Vector3(0, 0, 1);
-            System.Numerics.Vector3 upDir = new System.Numerics.Vector3(0, 1, 0);
-            System.Numerics.Vector3 rightDir = System.Numerics.Vector3.Normalize(System.Numerics.Vector3.Cross(upDir, forwardDir));
+            Vector3 camPosition = new Vector3(0, 0, 0);
+            Vector3 forwardDir = new Vector3(0, 0, 1);
+            Vector3 upDir = new Vector3(0, 1, 0);
+            Vector3 rightDir = Vector3.Normalize(Vector3.Cross(upDir, forwardDir));
 
             screenplane = calculateScreenplane(camPosition, forwardDir, upDir, rightDir, screen.width, screen.height);
 
@@ -104,10 +104,10 @@ namespace Template
             }
 
 
-            screen.PrintOutlined(timeString, 2, 2, Color4.White);
+            screen.PrintOutlined(timeString, 2, 2, new Color3(1,1,1));
         }
 
-        public ScreenPlane calculateScreenplane(System.Numerics.Vector3 camPosition, System.Numerics.Vector3 forwardDir, System.Numerics.Vector3 upDir, System.Numerics.Vector3 rightDir, int screenWidth, int screenHeight)
+        public ScreenPlane calculateScreenplane(Vector3 camPosition, Vector3 forwardDir, Vector3 upDir, Vector3 rightDir, int screenWidth, int screenHeight)
         {
             float fov = MathF.PI / 3f;
 
@@ -117,32 +117,32 @@ namespace Template
             float aspectRatio = (float)screenWidth / (float)screenHeight;
             float halfWidth = halfHeight * aspectRatio;
 
-            System.Numerics.Vector3 center = camPosition + forwardDir * focalDistance;
-            System.Numerics.Vector3 up = upDir * halfHeight;
-            System.Numerics.Vector3 right = rightDir * halfWidth;
+            Vector3 center = camPosition + forwardDir * focalDistance;
+            Vector3 up = upDir * halfHeight;
+            Vector3 right = rightDir * halfWidth;
 
-            System.Numerics.Vector3 upLeft = center + up - right;
-            System.Numerics.Vector3 upRight = center + up + right;
-            System.Numerics.Vector3 downRight = center - up + right;
-            System.Numerics.Vector3 downLeft = center - up - right;
+            Vector3 upLeft = center + up - right;
+            Vector3 upRight = center + up + right;
+            Vector3 downRight = center - up + right;
+            Vector3 downLeft = center - up - right;
 
             //Console.WriteLine($"UL: {upLeft}, UR: {upRight}, DR: {downRight}, DL: {downLeft}");
 
             return new ScreenPlane(upLeft, upRight, downRight, downLeft);
         }
-        private System.Numerics.Vector2 ProjectToPixel(System.Numerics.Vector3 WorldPoint)
+        private Vector2 ProjectToPixel(Vector3 WorldPoint)
         {
             //calc vector3 differnce with camera position
-            System.Numerics.Vector3 camPosition = camera.position;
-            System.Numerics.Vector3 forward = camera.lookAtDirection;
-            System.Numerics.Vector3 right = camera.rightDirection;
+            Vector3 camPosition = camera.position;
+            Vector3 forward = camera.lookAtDirection;
+            Vector3 right = camera.rightDirection;
 
-            System.Numerics.Vector3 delta = WorldPoint - camPosition;
+            Vector3 delta = WorldPoint - camPosition;
 
-            float x = System.Numerics.Vector3.Dot(delta, right);
-            float y = System.Numerics.Vector3.Dot(delta, forward);
+            float x = Vector3.Dot(delta, right);
+            float y = Vector3.Dot(delta, forward);
 
-            return new System.Numerics.Vector2(x, -(y-screen.height/2));
+            return new Vector2(x, -(y-screen.height/2));
         }
 
         private void RenderNormal(Surface screen)
@@ -158,18 +158,18 @@ namespace Template
                     float v = (row + screenY) / (float)screen.height;
 
                     //get screenplane points
-                    System.Numerics.Vector3 upLeft = camera.screenPlane.upLeft;
-                    System.Numerics.Vector3 upRight = camera.screenPlane.upRight;
-                    System.Numerics.Vector3 downRight = camera.screenPlane.downRight;
-                    System.Numerics.Vector3 downLeft = camera.screenPlane.downLeft;
+                    Vector3 upLeft = camera.screenPlane.upLeft;
+                    Vector3 upRight = camera.screenPlane.upRight;
+                    Vector3 downRight = camera.screenPlane.downRight;
+                    Vector3 downLeft = camera.screenPlane.downLeft;
 
                     //calculate the worlpoint coordinates of the pixel
-                    System.Numerics.Vector3 top = System.Numerics.Vector3.Lerp(upLeft, upRight, u);
-                    System.Numerics.Vector3 bottom = System.Numerics.Vector3.Lerp(downLeft, downRight, u);
-                    System.Numerics.Vector3 worldPoint = System.Numerics.Vector3.Lerp(top, bottom, v);
+                    Vector3 top = Vector3.Lerp(upLeft, upRight, u);
+                    Vector3 bottom = Vector3.Lerp(downLeft, downRight, u);
+                    Vector3 worldPoint = Vector3.Lerp(top, bottom, v);
 
                     //trace ray
-                    System.Numerics.Vector3 direction = System.Numerics.Vector3.Normalize(worldPoint - camera.position);
+                    Vector3 direction = Vector3.Normalize(worldPoint - camera.position);
 
                     Color3 pixelcol = raytracer.TraceRay(camera.position, direction);
 
@@ -184,36 +184,36 @@ namespace Template
 
             //get all worldccoordinates as vector 3. Convert to screenpixels and draw.
             float scale = 0.9f; // projection scale (zoom out)
-            System.Numerics.Vector2 middleOfScreen = new System.Numerics.Vector2(screenX, screenY);
+            Vector2 middleOfScreen = new Vector2(screenX, screenY);
 
             //Project camera
-            System.Numerics.Vector2 camProjection = ProjectToPixel(camera.position);
-            System.Numerics.Vector2 camPoint2d = camProjection * scale + middleOfScreen;
+            Vector2 camProjection = ProjectToPixel(camera.position);
+            Vector2 camPoint2d = camProjection * scale + middleOfScreen;
 
             int camSize = (int)(5 * scale);
             screen.Bar((int)camPoint2d.X - camSize, (int)camPoint2d.Y - camSize, (int)camPoint2d.X + camSize, (int)camPoint2d.Y + camSize, new Color3(1f, 0.0f, 0.5f));
 
             //Project screenplane
-            System.Numerics.Vector2 screenPlaneLeftProjection = ProjectToPixel(camera.screenPlane.upLeft);
-            System.Numerics.Vector2 screenPlaneRightProjection = ProjectToPixel(camera.screenPlane.upRight);
-            System.Numerics.Vector2 screenPlaneLeftPoint2d = screenPlaneLeftProjection * scale + middleOfScreen;
-            System.Numerics.Vector2 screenPlaneRightPoint2d = screenPlaneRightProjection * scale + middleOfScreen;
+            Vector2 screenPlaneLeftProjection = ProjectToPixel(camera.screenPlane.upLeft);
+            Vector2 screenPlaneRightProjection = ProjectToPixel(camera.screenPlane.upRight);
+            Vector2 screenPlaneLeftPoint2d = screenPlaneLeftProjection * scale + middleOfScreen;
+            Vector2 screenPlaneRightPoint2d = screenPlaneRightProjection * scale + middleOfScreen;
 
             screen.Line((int)screenPlaneLeftPoint2d.X, (int)screenPlaneLeftPoint2d.Y, (int)screenPlaneRightPoint2d.X, (int)screenPlaneRightPoint2d.Y, new Color3(0f, 1f, 1f));
 
             //Project primitives
             foreach (Primitive primitive in scene.primitives)
             {
-                System.Numerics.Vector2 primitiveProjection = ProjectToPixel(primitive.position);
-                System.Numerics.Vector2 primitivePoint2d = primitiveProjection * scale + middleOfScreen;
+                Vector2 primitiveProjection = ProjectToPixel(primitive.position);
+                Vector2 primitivePoint2d = primitiveProjection * scale + middleOfScreen;
 
                 //screen.Plot((int)primitivePoint2d.X, (int)primitivePoint2d.Y, primitive.color); //middle of primitive
 
                 if (primitive is Sphere)
                 {
                     //plot radius as pixels. Keep in mind height etc. can change radius.
-                    System.Numerics.Vector3 delta = primitive.position - camera.position;
-                    float height = System.Numerics.Vector3.Dot(delta, camera.upDirection);
+                    Vector3 delta = primitive.position - camera.position;
+                    float height = Vector3.Dot(delta, camera.upDirection);
 
                     float radius = (int)(((Sphere)primitive).radius);
                     float crossSectionRadius = 0f;
@@ -262,29 +262,35 @@ namespace Template
                 float v = (0 + screenY) / (float)screen.height;
 
                 //get screenplane points
-                System.Numerics.Vector3 upLeft = camera.screenPlane.upLeft;
-                System.Numerics.Vector3 upRight = camera.screenPlane.upRight;
-                System.Numerics.Vector3 downRight = camera.screenPlane.downRight;
-                System.Numerics.Vector3 downLeft = camera.screenPlane.downLeft;
+                Vector3 upLeft = camera.screenPlane.upLeft;
+                Vector3 upRight = camera.screenPlane.upRight;
+                Vector3 downRight = camera.screenPlane.downRight;
+                Vector3 downLeft = camera.screenPlane.downLeft;
 
                 //calculate the worlpoint coordinates of the pixel
-                System.Numerics.Vector3 top = System.Numerics.Vector3.Lerp(upLeft, upRight, u);
-                System.Numerics.Vector3 bottom = System.Numerics.Vector3.Lerp(downLeft, downRight, u);
-                System.Numerics.Vector3 worldPoint = System.Numerics.Vector3.Lerp(top, bottom, v);
+                Vector3 top = Vector3.Lerp(upLeft, upRight, u);
+                Vector3 bottom = Vector3.Lerp(downLeft, downRight, u);
+                Vector3 worldPoint = Vector3.Lerp(top, bottom, v);
                 
                 //trace ray
-                System.Numerics.Vector3 direction = System.Numerics.Vector3.Normalize(worldPoint - camera.position);
+                Vector3 direction = Vector3.Normalize(worldPoint - camera.position);
 
                 Intersection intersect = raytracer.DebugRay(camera.position, direction);
 
                 if (intersect != null)
                 {
-                    System.Numerics.Vector2 intersectionProjection = ProjectToPixel(intersect.position);
-                    System.Numerics.Vector2 intersectionPoint2d = intersectionProjection * scale + middleOfScreen;
+                    Vector2 intersectionProjection = ProjectToPixel(intersect.position);
+                    Vector2 intersectionPoint2d = intersectionProjection * scale + middleOfScreen;
 
                     screen.Line((int)camPoint2d.X, (int)camPoint2d.Y, (int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, new Color3(1f, 0f, 0f));
                 }
             }
+        }
+
+        public void HandleKeyboardInput(KeyboardState keyboard, float deltaTime)
+        {
+            float movementSpeed = 50f;
+            //Vector3 movementVector = Vector3()
         }
     }
 }

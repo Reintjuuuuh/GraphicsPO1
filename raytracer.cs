@@ -50,7 +50,7 @@ public class Raytracer
         }
         else
         {
-            return new Color3(0.1f, 0.1f, 0.1f);
+            return new Color3(0f, 0f, 0f);
         }
 	}
 
@@ -60,7 +60,6 @@ public class Raytracer
 
         List<Intersection> intersections = new();
 
-        Intersection closestIntersection = null;
         foreach (Primitive primitive in scene.primitives)
         {
             Intersection intersection = primitive.Intersection(ray);

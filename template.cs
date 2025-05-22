@@ -177,6 +177,8 @@ namespace Template
             // called once per frame; app logic
             var keyboard = KeyboardState;
             if (keyboard[Keys.Escape]) terminated = true;
+
+            app.HandleKeyboardInput(keyboard, (float)e.Time);
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
