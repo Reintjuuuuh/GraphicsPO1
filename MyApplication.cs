@@ -181,7 +181,7 @@ namespace Template
             Vector2 camPoint2d = camProjection * scale + middleOfScreen;
 
             int camSize = (int)(5 * scale);
-            screen.Bar((int)camPoint2d.X - camSize, (int)camPoint2d.Y - camSize, (int)camPoint2d.X + camSize, (int)camPoint2d.Y + camSize, new Color3(1f, 0.0f, 0.5f));
+            screen.Bar((int)camPoint2d.X - camSize, (int)camPoint2d.Y - camSize, (int)camPoint2d.X + camSize, (int)camPoint2d.Y + camSize, new Color3(0f, 1f, 0f));
 
             //Project screenplane
             Vector2 screenPlaneLeftProjection = ProjectToPixel(camera.screenPlane.upLeft);
@@ -312,11 +312,11 @@ namespace Template
         {
             if (mousePos.X > screen.width/2) //mouse is in debug screen
             {
-                scale = Math.Clamp(scale - (int)e.OffsetY * 0.1f, 0.1f, 3f); //clamp FOV between 0 and 180 to prevent shenenigans
+                scale = Math.Clamp(scale + (int)e.OffsetY * 0.1f, 0.1f, 3f); //clamp scale between 0.1 and 3 to prevent shenenigans
             } 
             else //mouse is in normal render
             {
-                fovDegrees = Math.Clamp(fovDegrees - (int)e.OffsetY, 0, 180); //clamp FOV between 0 and 180 to prevent shenenigans
+                fovDegrees = Math.Clamp(fovDegrees - (int)e.OffsetY, 0, 179); //clamp FOV between 1 and 179 to prevent shenenigans
             }
         }
     }
