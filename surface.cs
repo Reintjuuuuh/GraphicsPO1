@@ -112,9 +112,12 @@ namespace Template
         {
             int dest = y1 * width;
             for (int y = y1; y <= y2; y++, dest += width) for (int x = x1; x <= x2; x++)
+            {
+                if ((x >= 0) && (y >= 0) && (x < width) && (y < height))
                 {
                     pixels[dest + x] = c;
                 }
+            }
         }
         // helper function for line clipping
         int OUTCODE(int x, int y)

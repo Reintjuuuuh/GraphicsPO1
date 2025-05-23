@@ -31,16 +31,20 @@ namespace Template
             primitives = new List<Primitive>() {
                 new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0))
             };
-            int primitiveCount = 20;
+
+            lights = new List<Light>()
+            {
+                new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1)),
+                new Light(new Vector3(0, 0, 1000), new Color3(1, 1, 1))
+            };
+
+            int primitiveCount = 5;
             Random random = new Random();
             for (int i = 0; i < primitiveCount; i++)
             {
                 primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400)));
+                //lights.Add(new Light(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), new Color3(1, 1, 1)));
             }
-
-            lights = new List<Light>() {
-                new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1))
-            };
 
             Vector3 camPosition = new Vector3(0, 0, 0);
             Vector3 forwardDir = new Vector3(0, 0, 1);
@@ -192,6 +196,15 @@ namespace Template
             int camSize = (int)(5 * scale);
             screen.Bar((int)camPoint2d.X - camSize, (int)camPoint2d.Y - camSize, (int)camPoint2d.X + camSize, (int)camPoint2d.Y + camSize, new Color3(0f, 1f, 0f));
 
+            //project light sources
+            foreach (Light light in lights)
+            {
+                Vector2 lightProjection = ProjectToPixel(light.location);
+                Vector2 lightPoint2d = lightProjection * scale + middleOfScreen;
+
+                screen.Bar((int)lightPoint2d.X - camSize, (int)lightPoint2d.Y - camSize, (int)lightPoint2d.X + camSize, (int)lightPoint2d.Y + camSize, new Color3(1, 1, 0));
+            }
+
             //Project screenplane
             Vector2 screenPlaneLeftProjection = ProjectToPixel(camera.screenPlane.upLeft);
             Vector2 screenPlaneRightProjection = ProjectToPixel(camera.screenPlane.upRight);
@@ -222,7 +235,7 @@ namespace Template
                     }
 
                     int pixelRadius = (int)(crossSectionRadius * scale + 0.5f); // always force at least one pixel.
-                    
+
                     int cx = (int)primitivePoint2d.X;
                     int cy = (int)primitivePoint2d.Y;
                     int x = pixelRadius;
@@ -249,22 +262,28 @@ namespace Template
                         }
                     }
                 }
+
+                if (primitive is Plane)
+                {
+                    //gets handled in debugraydrawer
+                }
             }
 
             //draw rays
             //vector3 of camposition and vector 3 of screenplane point.
             //project those to pixels
+
+            //get screenplane points
+            Vector3 upLeft = camera.screenPlane.upLeft;
+            Vector3 upRight = camera.screenPlane.upRight;
+            Vector3 downRight = camera.screenPlane.downRight;
+            Vector3 downLeft = camera.screenPlane.downLeft;
+
             for (int col = -screenX; col < screenX; col += 10)
             {
                 //normalize to 0-1
                 float u = (col + screenX) / (float)screen.width;
                 float v = (0 + screenY) / (float)screen.height;
-
-                //get screenplane points
-                Vector3 upLeft = camera.screenPlane.upLeft;
-                Vector3 upRight = camera.screenPlane.upRight;
-                Vector3 downRight = camera.screenPlane.downRight;
-                Vector3 downLeft = camera.screenPlane.downLeft;
 
                 //calculate the worlpoint coordinates of the pixel
                 Vector3 top = Vector3.Lerp(upLeft, upRight, u);
@@ -276,12 +295,49 @@ namespace Template
 
                 Intersection? intersect = raytracer.DebugRay(camera.position, direction);
 
+                if (intersect.primitive is Plane)
+                {
+                    Vector2 primitiveProjection = ProjectToPixel(intersect.position);
+                    Vector2 primitivePoint2d = primitiveProjection * scale + middleOfScreen;
+
+                    int planeSize = 3;
+
+                    screen.Bar((int)primitivePoint2d.X - planeSize, (int)primitivePoint2d.Y - planeSize, (int)primitivePoint2d.X + planeSize, (int)primitivePoint2d.Y + planeSize, intersect.primitive.color);
+                }
+
                 if (intersect != null)
                 {
                     Vector2 intersectionProjection = ProjectToPixel(intersect.position);
                     Vector2 intersectionPoint2d = intersectionProjection * scale + middleOfScreen;
 
                     screen.Line((int)camPoint2d.X, (int)camPoint2d.Y, (int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, new Color3(1f, 0f, 0f));
+
+                    //draw shadowrays //bug: shadowrays get drawn when looking at an unilluminated surface, like the back of a sphere //bug2: with planes, the shadowrays can overextend the light source. Tmax not set correctly? epsilon?
+                    if (intersect.position != camera.position + direction * 10000)
+                    {
+                        float lightOffset = 0;
+                        foreach (Light light in lights)
+                        {
+                            Vector3 shadowDirection = Vector3.Normalize(light.location - intersect.position);
+                            Intersection? shadowIntersect = raytracer.DebugShadowRay(intersect.position, shadowDirection, light);
+
+                            if (shadowIntersect != null)
+                            {
+                                Vector2 shadowProjection = ProjectToPixel(shadowIntersect.position);
+                                Vector2 shadowPoint2d = shadowProjection * scale + middleOfScreen;
+
+                                if (shadowIntersect.position == light.location)
+                                {
+                                    screen.Line((int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, (int)shadowPoint2d.X, (int)shadowPoint2d.Y, new Color3(1f + lightOffset, 0.5f + lightOffset, 0f + lightOffset));
+                                } else
+                                {
+                                    screen.Line((int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, (int)shadowPoint2d.X, (int)shadowPoint2d.Y, new Color3(0.7f + lightOffset, 0.7f + lightOffset, 0f + lightOffset));
+                                }
+                            }
+
+                            lightOffset += 0.05f;
+                        }
+                    }
                 }
             }
         }

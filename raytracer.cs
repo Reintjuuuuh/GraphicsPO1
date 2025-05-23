@@ -1,5 +1,6 @@
 
 ﻿using Assimp;
+using Microsoft.VisualBasic;
 using OpenTK.Compute.OpenCL;
 using System;
 using System.Data.Common;
@@ -31,6 +32,10 @@ public class Raytracer
             //Shoot for each light a ray from the primitive intersection to the light source
             //For now this only works with one light
             Color3 ambientLight = new Color3(0.15f, 0.15f, 0.15f);
+
+            if (!scene.lights.Any()) return new Color3(0, 0, 0); //In case of no lights
+
+            Color3 pixelCol = new Color3(0,0,0);
             foreach (Light light in scene.lights) {
                 Vector3 shadowDirection = Vector3.Normalize(light.location - closestIntersection.position);
                 Vector3 shadowOrigin = closestIntersection.position;
@@ -52,37 +57,23 @@ public class Raytracer
                 }
 
                 if (primitiveBetweenLight) {
-                    return ambientLight;
+                    continue;
                 } else {
                     //Calculate light color
                     float r = closestIntersection.primitive.Distance(light.location);
 
                     float dotProduct = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
-
-                    float R = (light.intensity.R * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.R + ambientLight.R;
-                    float G = (light.intensity.G * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.G + ambientLight.G;
-                    float B = (light.intensity.B * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.B + ambientLight.B;
+                    //Console.Write(dotProduct);
+                    float R = (light.intensity.R * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.R;
+                    float G = (light.intensity.G * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.G;
+                    float B = (light.intensity.B * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.B;
 
                     Color3 Color = (R, G, B);
-                    return Color;
-
+                    pixelCol += Color;
                 }
             }
-            //In case of no lights
-            return new Color3(0, 0, 0);
-
-            /*float grayScale = 1f;
-            if (closestIntersection.primitive is Sphere)
-            {
-                Sphere sphere = closestIntersection.primitive as Sphere;
-                float a = Vector3.Distance(closestIntersection.position, camera.position);
-                float b = closestIntersection.primitive.Distance(camera.position);
-                float c = (1 / sphere.radius);
-
-                grayScale = Math.Max(0, Math.Min(1, 1 - ((a - b) * c)));
-            }
-            return new Color3(grayScale, grayScale, grayScale);
-            */
+            return pixelCol + ambientLight;
+            
         }
         else
         {
@@ -94,7 +85,6 @@ public class Raytracer
     {
         Ray ray = new Ray(cameraPos, direction);
         List<Intersection> intersections = new();
-
 
         foreach (Primitive primitive in scene.primitives)
         {
@@ -113,8 +103,33 @@ public class Raytracer
         {
             //create fake intersection far away.
             Vector3 intersectionPoint = ray.orgin + ray.directionVector * 10000;
-            return new Intersection(intersectionPoint, Vector3.Distance(intersectionPoint, ray.orgin), null, new Vector3(0, 0, 0));
+            return new Intersection(intersectionPoint, Vector3.Distance(intersectionPoint, ray.orgin), null, new Vector3(0, 1, 999)); //very cursed, but the normal vector (0, 1, 999) indicates that it is a fake intersection
         }
+    }
+    public Intersection? DebugShadowRay(Vector3 origin, Vector3 direction, Light light)
+    {
+        Ray ray = new Ray(origin, Vector3.Normalize(direction));
+
+        List<Intersection> intersections = GetIntersections(ray);
+
+        //If there is one check if it is between the light and the primitive
+        float epsilon = 1f;
+        float tmax = Vector3.Distance(origin, light.location);
+
+        Intersection lightIntersect = new Intersection(light.location, tmax, null, new Vector3(0, 0, 0));
+
+        Intersection closestIntersection = lightIntersect;
+        float smallestDistance = Vector3.Distance(origin, closestIntersection.position);
+        foreach (Intersection intersection in intersections)
+        {
+            float t = Vector3.Distance(origin, intersection.position);
+            if (t > epsilon && t < tmax - epsilon && smallestDistance > t)
+            {
+                closestIntersection = intersection;
+                smallestDistance = t;
+            }
+        }
+        return closestIntersection;
     }
 
     public List<Intersection> GetIntersections(Ray ray) {
