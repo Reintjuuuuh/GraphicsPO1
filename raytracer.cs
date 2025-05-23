@@ -177,7 +177,7 @@ public class Raytracer
         {
             //create fake intersection far away.
             Vector3 intersectionPoint = ray.orgin + ray.directionVector * 10000;
-            return new Intersection(intersectionPoint, Vector3.Distance(intersectionPoint, ray.orgin), null, null);
+            return new Intersection(intersectionPoint, Vector3.Distance(intersectionPoint, ray.orgin), null, new Vector3(0, 0, 0));
         }
     }
 
