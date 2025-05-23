@@ -29,7 +29,7 @@ namespace Template
         public void Init()
         {
             primitives = new List<Primitive>() {
-                new Plane(new Vector3(0, 1, 0), new Vector3(0, -10, 0))
+                new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0))
             };
             int primitiveCount = 20;
             Random random = new Random();
