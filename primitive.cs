@@ -89,11 +89,6 @@ public class Plane : Primitive {
 	public float distance;
 	public float d;
 
-	public Plane(Vector3 normal, float distance) {
-		this.normal = normal;
-		this.distance = distance;
-	}
-
 	public Plane(Vector3 normal, Vector3 pointOnPlane) {
 		this.normal = normal;
 		this.pointOnPlane = pointOnPlane;

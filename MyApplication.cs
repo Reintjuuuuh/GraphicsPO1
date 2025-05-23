@@ -29,8 +29,7 @@ namespace Template
         public void Init()
         {
             primitives = new List<Primitive>() {
-                //new Sphere(new Vector3(0, 0, 500), 200), 
-                //new Sphere(new Vector3(90, 0, 200), 10),
+                new Plane(new Vector3(0, 1, 0), new Vector3(0, -10, 0))
             };
             int primitiveCount = 20;
             Random random = new Random();
@@ -39,7 +38,9 @@ namespace Template
                 primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400)));
             }
 
-            lights = new List<Light>();
+            lights = new List<Light>() {
+                new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1))
+            };
 
             Vector3 camPosition = new Vector3(0, 0, 0);
             Vector3 forwardDir = new Vector3(0, 0, 1);
@@ -61,6 +62,8 @@ namespace Template
         private string timeString = "---- ms/frame";
         public void Tick(int totalWidth, int totalHeight)
         {
+            //scene.lights[0].location = camera.position;
+
             timer.Restart();
             screen.Clear(0);
 
@@ -174,6 +177,7 @@ namespace Template
         float scale = 1f; // projection scale (zoom out)
         private void RenderDebug(Surface screen)
         {
+           
             int screenX = screen.width / 2;
             int screenY = screen.height / 2;
 
