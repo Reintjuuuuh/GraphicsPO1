@@ -5,23 +5,26 @@ using System.Numerics;
 public class Camera
 {
 	public Vector3 position = new Vector3(0, 0, 0);
-    public Vector3 lookAtDirection = new Vector3(0, 0, 1);
+    public Vector3 forwardDirection = new Vector3(0, 0, 1);
     public Vector3 upDirection = new Vector3(0, 1, 0);
+    public Vector3 rightDirection = new Vector3(1, 0, 0);
     public ScreenPlane screenPlane = new ScreenPlane(new Vector3(-100, 100, 10), new Vector3(100, 100, 10), new Vector3(100, -100, 10), new Vector3(-100, -100, 10));
+    //public ScreenPlane screenPlane;
 
     //Standerd camera has a 200x100 screenplane, with a corner of x=-100 and x=100. The y is up, so the upper corners have an y of 100;
-    public Camera(){
+    public Camera() {
         
     }
-
-	public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, ScreenPlane screenPlane) {
+    
+	public Camera(Vector3 position, Vector3 forwardDirection, Vector3 upDirection, Vector3 rightDirection, ScreenPlane screenPlane) {
         this.position = position;
-        this.lookAtDirection = lookAtDirection;
+        this.forwardDirection = forwardDirection;
         this.upDirection = upDirection;
+        this.rightDirection = rightDirection;
         this.screenPlane = screenPlane;
     }
 
-    public Camera(ScreenPlane screenPlane){
+    public Camera(ScreenPlane screenPlane) {
         this.screenPlane = screenPlane;
     }
 

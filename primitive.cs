@@ -2,9 +2,10 @@
 using System.Numerics;
 using Template;
 
-public abstract class Primitive : Visualizable
+public abstract class Primitive
 {
 	public Color3 color;
+	public Vector3 position;
 	public Primitive()
 	{
 		color = new Color3(0, 0, 1);
@@ -12,12 +13,11 @@ public abstract class Primitive : Visualizable
 
 
     public abstract Intersection? Intersection(Ray ray);
-	public abstract List<Vector3> getPixels(Scene1 scene, Camera camera);
 	public abstract float Distance(Vector3 point); 
 }
 
 public class Sphere : Primitive {
-	public Vector3 position;
+	
 	public float radius;
 	public float distance;
 
@@ -30,42 +30,33 @@ public class Sphere : Primitive {
 		return Vector3.Distance(position, point) - radius;
     }
 
-    public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
-		List<Vector3> pixels = new List<Vector3>();
-		for (int i = (int)(-radius - 1); i <= (int)(radius + 1); i++) {
-			for (int j = (int)(-radius - 1); j <= (int)(radius + 1); j++){
-				int l2 = i * i + j * j;
-				float r2 = radius * radius;
-				if (l2 < r2 + 40 && l2 > r2 - 40) {
-					pixels.Add(new Vector3(i + position.X, 0, j + position.Z));
-				}
-			}
-		}
-		return pixels;
-	}
-
     public override Intersection? Intersection(Ray ray) {
 		//in de vorm ax^2+bx+c zoals conventie
-		float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
-		float b = (ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z)) * 2;
-		float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
-		float d = MathF.Pow(b, 2) - 4 * a * c;
+		//neem aan dat de directie normalized is, dan is a 1. Sneller
+		//float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
+		Vector3 origin = ray.orgin - position;
 
-		Intersection closestIntersection;
+		float b = 2f * Vector3.Dot(ray.directionVector, origin);
+		float c = Vector3.Dot(origin, origin) - radius * radius;
+		float d = b * b - 4f * c;
 
-		//Calculate normal
+        //float b = (ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z)) * 2;
+        //float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
+        //float d = MathF.Pow(b, 2) - 4 * c; //removed times a because 1
 
+        Intersection closestIntersection;
+		
 		if(d < 0) {
 			return null;
 		} else if(d == 0) {
-			float I = (-b) / (2 * a);
-			Vector3 intersectionPoint = ray.orgin + I * ray.directionVector;
+			float I = (-b) / (2); //removed times a because 1
+            Vector3 intersectionPoint = ray.orgin + I * ray.directionVector;
 			float distance = Vector3.Distance(intersectionPoint, ray.orgin);
 			Vector3 normal = intersectionPoint - this.position;  
 			closestIntersection = new Intersection(intersectionPoint, distance, this, normal);
 		} else {
-            float IMin = (-b - MathF.Sqrt(d))  / (2 * a);
-			float IPlus = (-b + MathF.Sqrt(d)) / (2 * a);
+            float IMin = (-b - MathF.Sqrt(d))  / (2); //removed times a because 1
+            float IPlus = (-b + MathF.Sqrt(d)) / (2); //removed times a because 1
 
             Vector3 intersectionPointMin = ray.orgin + IMin * ray.directionVector;
             Vector3 intersectionPointPlus = ray.orgin + IPlus * ray.directionVector;
@@ -116,10 +107,6 @@ public class Plane : Primitive {
     public float distanceToOrigin() {
 		return 0;
 	}
-
-    public override List<Vector3> getPixels(Scene1 scene, Camera camera) {
-        throw new NotImplementedException();
-    }
 
     public override Intersection? Intersection(Ray ray) {
 		//We use the following form: [x, y, z]^t = [p_x, p_y, p_z]^t + I * [d_x, d_y, d_z]^t

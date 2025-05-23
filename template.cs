@@ -157,6 +157,13 @@ namespace Template
             base.OnResize(e);
             // called upon window resize. Note: does not change the size of the pixel buffer.
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+
+            var newSurface = new Surface(ClientSize.X, ClientSize.Y);
+            app.screen = newSurface;
+
+            GL.DeleteTexture(screenID);
+            screenID = newSurface.GenTexture();
+
             if (allowPrehistoricOpenGL)
             {
                 GL.MatrixMode(MatrixMode.Projection);
@@ -170,12 +177,14 @@ namespace Template
             // called once per frame; app logic
             var keyboard = KeyboardState;
             if (keyboard[Keys.Escape]) terminated = true;
+
+            app?.HandleKeyboardInput(keyboard, (float)e.Time);
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
             // called once per frame; render
-            app?.Tick();
+            app?.Tick(ClientSize.X, ClientSize.Y);
             if (terminated)
             {
                 Close();
@@ -216,6 +225,42 @@ namespace Template
             using OpenTKApp app = new();
             app.UpdateFrequency = 30.0;
             app.Run();
+        }
+
+
+
+
+
+        public bool mouseDown = false;
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            mouseDown = true;
+        }
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            mouseDown = false;
+        }
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            app?.HandleMouseScroll(e, (System.Numerics.Vector2)MousePosition);
+        }
+
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (mouseDown)
+            {
+                app?.HandleMouseInput(e.DeltaX, e.DeltaY);
+            }
         }
     }
 }
