@@ -102,13 +102,13 @@ public class Raytracer
                 List<Intersection> lightIntersections = GetIntersections(lightRay);
 
                 //If there is one check if it is between the light and the primitive
-                float epsilon = 0.001f;
+                float epsilon = 0.0001f;
                 bool primitiveBetweenLight = false;
                 foreach (Intersection intersection in lightIntersections) {
                     float distancePrimaryToLight = Vector3.Distance(closestIntersection.position, light.location);
                     float distanceIntersectToLight = Vector3.Distance(intersection.position, light.location);
-                    float distanceSecondToPrimary = Vector3.Distance(closestIntersection.position, intersection.secondPoint);
-                    if ((distanceIntersectToPrimary > epsilon && distancePrimaryToLight > distanceIntersectToLight) || distanceSecondToPrimary < distanceLightToPrimary) {
+                    float distanceIntersectToPrimary = Vector3.Distance(intersection.position, closestIntersection.position);
+                    if ((epsilon > distanceIntersectToPrimary || distanceIntersectToLight < distancePrimaryToLight - epsilon)) {
                         primitiveBetweenLight = true;
                         break;
                     }
