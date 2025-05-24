@@ -46,6 +46,17 @@ namespace Template
                 //lights.Add(new Light(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), new Color3(1, 1, 1)));
             }
 
+            // triangle test
+            Vector3 pA = new Vector3(-20, -20, 50);
+            Vector3 pB = new Vector3(20, -20, 50);
+            Vector3 pC = new Vector3(0, 20, 50);
+            Vector3 normal = Vector3.UnitZ; // (0, 0, 1)
+
+            Triangle tri = new Triangle(pA, pB, pC, normal, normal, normal);
+            tri.color = new Color3(1, 0, 0); // Red
+            primitives.Add(tri);
+
+
             Vector3 camPosition = new Vector3(0, 0, 0);
             Vector3 forwardDir = new Vector3(0, 0, 1);
             Vector3 upDir = new Vector3(0, 1, 0);

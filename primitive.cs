@@ -141,8 +141,62 @@ public class Intersection : IComparable<Intersection>{
 		this.normal = Vector3.Normalize(normal);
 	}
 
-    public int CompareTo(Intersection? other) {
+	public int CompareTo(Intersection? other)
+	{
 		return distance.CompareTo(other.distance);
+	}
+}
+
+public class Triangle : Primitive
+{
+    public Vector3 pA, pB, pC;
+    public Vector3 nA, nB, nC;
+
+    public Triangle(Vector3 pA, Vector3 pB, Vector3 pC, Vector3 nA, Vector3 nB, Vector3 nC)
+    {
+        this.pA = pA;
+        this.pB = pB;
+        this.pC = pC;
+        this.nA = nA;
+        this.nB = nB;
+        this.nC = nC;
+    }
+
+    public override Intersection? Intersection(Ray ray)
+    {
+        Vector3 edge1 = pB - pA;
+        Vector3 edge2 = pC - pA;
+        Vector3 normal = Vector3.Normalize(Vector3.Cross(edge1, edge2)); // geometrische normaal
+
+        // if ray = parralel to plane return 0 
+        float denom = Vector3.Dot(normal, ray.directionVector);
+        if (denom > -0.00001f && denom < 0.00001f)
+            return null;
+
+        // bwreken afstand langs de straal naar het snijpunt met het vlak
+        float t = Vector3.Dot(pA - ray.orgin, normal) / denom;
+        if (t < 0)
+            return null; // sp ligt achter oorsprong
+
+        // bereken snijpunt
+        Vector3 P = ray.orgin + t * ray.directionVector;
+
+        // controleer elke hoek (zelfde als in de slides)
+        Vector3 c0 = Vector3.Cross(pB - pA, P - pA);
+        Vector3 c1 = Vector3.Cross(pC - pB, P - pB);
+        Vector3 c2 = Vector3.Cross(pA - pC, P - pC);
+
+        if (Vector3.Dot(c0, normal) < 0) return null;
+        if (Vector3.Dot(c1, normal) < 0) return null;
+        if (Vector3.Dot(c2, normal) < 0) return null;
+
+        // P ligt binnen de driehoek == maak een intersect object aan
+        return new Intersection(position: P,distance: t,primitive: this,normal: normal);
+    }
+
+    public override float Distance(Vector3 point)
+    {
+        return 0;
     }
 }
 
