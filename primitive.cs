@@ -6,12 +6,17 @@ public abstract class Primitive
 {
 	public Color3 color;
 	public Vector3 position;
+	public bool isMirror = false;
 
 	public Primitive()
 	{
 		color = new Color3(0, 0, 1);
 	}
 
+	public Primitive(bool isMirror) {
+        color = new Color3(0.7f, 0.7f, 0.7f);
+		this.isMirror = isMirror;
+    }
 
     public abstract Intersection? Intersection(Ray ray);
 	public abstract float Distance(Vector3 point); 
@@ -23,6 +28,11 @@ public class Sphere : Primitive {
 	public float distance;
 
 	public Sphere(Vector3 position, int radius) {
+        this.position = position;
+        this.radius = radius;
+    }
+
+	public Sphere(Vector3 position, int radius, bool isMirror) : base(isMirror) {
         this.position = position;
         this.radius = radius;
     }

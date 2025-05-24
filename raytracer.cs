@@ -19,8 +19,8 @@ public class Raytracer
 	}
 
 
-	public Color3 TraceRay(Vector3 cameraPosition, Vector3 viewDirection)
-	{
+	public Color3 TraceRay(Vector3 cameraPosition, Vector3 viewDirection, int bounces)
+	{        
         Ray viewRay = new Ray(cameraPosition, viewDirection);
         List<Intersection> viewIntersections = GetIntersections(viewRay);
 
@@ -59,26 +59,32 @@ public class Raytracer
                 if (primitiveBetweenLight) {
                     continue;
                 } else {
-                    //Calculate light color
-                    float r = closestIntersection.primitive.Distance(light.location);
-
-                    float diffuseFactor = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
-                    Color3 Kd = closestIntersection.primitive.color;
-
                     Vector3 lightVector = -1 * shadowRay.directionVector;
                     Vector3 normal = Vector3.Normalize(closestIntersection.normal);
                     Vector3 reflectedVector = Vector3.Normalize(lightVector - 2 * Vector3.Dot(lightVector, normal) * normal);
                     Vector3 inverseViewRay = Vector3.Normalize(-viewRay.directionVector);
-                    float n = 10f;
-                    float glossyFactor = (float) Math.Pow(Math.Max(Vector3.Dot(reflectedVector, inverseViewRay), 0), n);
-                    Color3 Ks = new Color3(0.9f, 0.9f, 0.9f);
-                      
-                    float R = light.intensity.R * (1 / r * r) * (diffuseFactor * Kd.R + glossyFactor * Ks.R);
-                    float G = light.intensity.G * (1 / r * r) * (diffuseFactor * Kd.G + glossyFactor * Ks.G);
-                    float B = light.intensity.B * (1 / r * r) * (diffuseFactor * Kd.B + glossyFactor * Ks.B);
 
-                    Color3 Color = (R, G, B);
-                    pixelCol += Color;
+                    if (closestIntersection.primitive.isMirror && bounces < 10) {
+                        bounces += 1;
+                        pixelCol += new Color3(0.5f, 0.5f, 0.5f) * TraceRay(closestIntersection.position, reflectedVector, bounces);
+                    } else {
+                        //Calculate light color
+                        float r = closestIntersection.primitive.Distance(light.location);
+
+                        float diffuseFactor = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
+                        Color3 Kd = closestIntersection.primitive.color;
+
+                        float n = 2f;
+                        float glossyFactor = (float)Math.Pow(Math.Max(Vector3.Dot(reflectedVector, inverseViewRay), 0), n);
+                        Color3 Ks = new Color3(0.9f, 0.9f, 0.9f);
+
+                        float R = light.intensity.R * (1 / (r * r)) * (diffuseFactor * Kd.R + glossyFactor * Ks.R);
+                        float G = light.intensity.G * (1 / (r * r)) * (diffuseFactor * Kd.G + glossyFactor * Ks.G);
+                        float B = light.intensity.B * (1 / (r * r)) * (diffuseFactor * Kd.B + glossyFactor * Ks.B);
+
+                        Color3 Color = (R, G, B);
+                        pixelCol += Color;
+                    }
                 }
             }
             return pixelCol + ambientLight;

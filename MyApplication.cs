@@ -34,7 +34,7 @@ namespace Template
 
             lights = new List<Light>()
             {
-                new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1)),
+                new Light(new Vector3(0, 0, 0), new Color3(50000, 50000, 50000)),
                 new Light(new Vector3(0, 0, 1000), new Color3(1, 1, 1))
             };
 
@@ -42,7 +42,7 @@ namespace Template
             Random random = new Random();
             for (int i = 0; i < primitiveCount; i++)
             {
-                primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400)));
+                primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400), true));
                 //lights.Add(new Light(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), new Color3(1, 1, 1)));
             }
 
@@ -172,7 +172,7 @@ namespace Template
                     //trace ray
                     Vector3 direction = Vector3.Normalize(worldPoint - camera.position);
 
-                    Color3 pixelcol = raytracer.TraceRay(camera.position, direction);
+                    Color3 pixelcol = raytracer.TraceRay(camera.position, direction, 0);
 
                     screen.Plot(col + screenX, row + screenY, pixelcol);
                 }
