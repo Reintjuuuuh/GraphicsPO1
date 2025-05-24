@@ -196,7 +196,49 @@ public class Triangle : Primitive
 
     public override float Distance(Vector3 point)
     {
-        return 0;
+        Vector3 edge1 = pB - pA;
+        Vector3 edge2 = pC - pA;
+        Vector3 normal = Vector3.Normalize(Vector3.Cross(edge1, edge2));
+
+        // projecteer punt op plane
+        float afstandTotPlane = Vector3.Dot(point - pA, normal);
+        Vector3 projected = point - afstandTotPlane * normal;
+
+        // edge orentation checks
+        Vector3 c0 = Vector3.Cross(pB - pA, projected - pA);
+        Vector3 c1 = Vector3.Cross(pC - pB, projected - pB);
+        Vector3 c2 = Vector3.Cross(pA - pC, projected - pC);
+
+        if (Vector3.Dot(c0, normal) >= 0 && Vector3.Dot(c1, normal) >= 0 && Vector3.Dot(c2, normal) >= 0)
+        {
+            // binnen triangle
+            return Math.Abs(afstandTotPlane);
+        }
+        else
+        {
+            // buiten triangle: hoek AB
+            Vector3 ab = pB - pA;
+            float tAB = Vector3.Dot(point - pA, ab) / Vector3.Dot(ab, ab);
+            tAB = Math.Clamp(tAB, 0, 1);
+            Vector3 closestAB = pA + tAB * ab;
+            float dAB = Vector3.Distance(point, closestAB);
+
+            // hoek BC
+            Vector3 bc = pC - pB;
+            float tBC = Vector3.Dot(point - pB, bc) / Vector3.Dot(bc, bc);
+            tBC = Math.Clamp(tBC, 0, 1);
+            Vector3 closestBC = pB + tBC * bc;
+            float dBC = Vector3.Distance(point, closestBC);
+
+            // hoek CA
+            Vector3 ca = pA - pC;
+            float tCA = Vector3.Dot(point - pC, ca) / Vector3.Dot(ca, ca);
+            tCA = Math.Clamp(tCA, 0, 1);
+            Vector3 closestCA = pC + tCA * ca;
+            float dCA = Vector3.Distance(point, closestCA);
+
+            return Math.Min(dAB, Math.Min(dBC, dCA));
+        }
     }
 }
 
