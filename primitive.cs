@@ -6,6 +6,7 @@ public abstract class Primitive
 {
 	public Color3 color;
 	public Vector3 position;
+
 	public Primitive()
 	{
 		color = new Color3(0, 0, 1);

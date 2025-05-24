@@ -62,11 +62,20 @@ public class Raytracer
                     //Calculate light color
                     float r = closestIntersection.primitive.Distance(light.location);
 
-                    float dotProduct = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
-                    //Console.Write(dotProduct);
-                    float R = (light.intensity.R * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.R;
-                    float G = (light.intensity.G * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.G;
-                    float B = (light.intensity.B * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.B;
+                    float diffuseFactor = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
+                    Color3 Kd = closestIntersection.primitive.color;
+
+                    Vector3 lightVector = -1 * shadowRay.directionVector;
+                    Vector3 normal = Vector3.Normalize(closestIntersection.normal);
+                    Vector3 reflectedVector = Vector3.Normalize(lightVector - 2 * Vector3.Dot(lightVector, normal) * normal);
+                    Vector3 inverseViewRay = Vector3.Normalize(-viewRay.directionVector);
+                    float n = 10f;
+                    float glossyFactor = (float) Math.Pow(Math.Max(Vector3.Dot(reflectedVector, inverseViewRay), 0), n);
+                    Color3 Ks = new Color3(0.9f, 0.9f, 0.9f);
+                      
+                    float R = light.intensity.R * (1 / r * r) * (diffuseFactor * Kd.R + glossyFactor * Ks.R);
+                    float G = light.intensity.G * (1 / r * r) * (diffuseFactor * Kd.G + glossyFactor * Ks.G);
+                    float B = light.intensity.B * (1 / r * r) * (diffuseFactor * Kd.B + glossyFactor * Ks.B);
 
                     Color3 Color = (R, G, B);
                     pixelCol += Color;
