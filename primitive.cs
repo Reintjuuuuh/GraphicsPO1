@@ -6,6 +6,7 @@ public abstract class Primitive
 {
 	public Color3 color;
 	public Vector3 position;
+    public bool interpolateNormals = false;
 	public Primitive()
 	{
 		color = new Color3(0, 0, 1);
@@ -166,22 +167,19 @@ public class Triangle : Primitive
     {
         Vector3 edge1 = pB - pA;
         Vector3 edge2 = pC - pA;
-        Vector3 normal = Vector3.Normalize(Vector3.Cross(edge1, edge2)); // geometrische normaal
+        Vector3 normal = Vector3.Normalize(Vector3.Cross(edge1, edge2));
 
-        // if ray = parralel to plane return 0 
-        float denom = Vector3.Dot(normal, ray.directionVector);
-        if (denom > -0.00001f && denom < 0.00001f)
+        float deler = Vector3.Dot(normal, ray.directionVector);
+        if (deler > -0.00001f && deler < 0.00001f)
             return null;
 
-        // bwreken afstand langs de straal naar het snijpunt met het vlak
-        float t = Vector3.Dot(pA - ray.orgin, normal) / denom;
+        float t = Vector3.Dot(pA - ray.orgin, normal) / deler;
         if (t < 0)
-            return null; // sp ligt achter oorsprong
+            return null;
 
-        // bereken snijpunt
         Vector3 P = ray.orgin + t * ray.directionVector;
 
-        // controleer elke hoek (zelfde als in de slides)
+        // edge orientation
         Vector3 c0 = Vector3.Cross(pB - pA, P - pA);
         Vector3 c1 = Vector3.Cross(pC - pB, P - pB);
         Vector3 c2 = Vector3.Cross(pA - pC, P - pC);
@@ -190,8 +188,27 @@ public class Triangle : Primitive
         if (Vector3.Dot(c1, normal) < 0) return null;
         if (Vector3.Dot(c2, normal) < 0) return null;
 
-        // P ligt binnen de driehoek == maak een intersect object aan
-        return new Intersection(position: P,distance: t,primitive: this,normal: normal);
+        // barycentric coords (zie slides)
+        Vector3 v0 = pB - pA;
+        Vector3 v1 = pC - pA;
+        Vector3 v2 = P - pA;
+        float d00 = Vector3.Dot(v0, v0);
+        float d01 = Vector3.Dot(v0, v1);
+        float d11 = Vector3.Dot(v1, v1);
+        float d20 = Vector3.Dot(v2, v0);
+        float d21 = Vector3.Dot(v2, v1);
+        float delerBary = d00 * d11 - d01 * d01;
+        float v = (d11 * d20 - d01 * d21) / delerBary;
+        float w = (d00 * d21 - d01 * d20) / delerBary;
+        float u = 1.0f - v - w;
+
+        Vector3 finalNormal = normal;
+        if (interpolateNormals)
+        {
+            finalNormal = Vector3.Normalize(u * nA + v * nB + w * nC);
+        }
+
+        return new Intersection(position: P,distance: t,primitive: this,normal: finalNormal);
     }
 
     public override float Distance(Vector3 point)

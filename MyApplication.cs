@@ -34,7 +34,7 @@ namespace Template
 
             lights = new List<Light>()
             {
-                new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1)),
+                new Light(new Vector3(0, 0, 10), new Color3(1, 1, 1)),
                 new Light(new Vector3(0, 0, 1000), new Color3(1, 1, 1))
             };
 
@@ -42,20 +42,44 @@ namespace Template
             Random random = new Random();
             for (int i = 0; i < primitiveCount; i++)
             {
-                primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400)));
+                //primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400)));
                 //lights.Add(new Light(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), new Color3(1, 1, 1)));
+                
             }
 
-            // triangle test
-            Vector3 pA = new Vector3(-20, -20, 50);
-            Vector3 pB = new Vector3(20, -20, 50);
-            Vector3 pC = new Vector3(0, 20, 50);
-            Vector3 normal = Vector3.UnitZ; // (0, 0, 1)
+            // vertices van 3d driehoek
+            Vector3 v0 = new Vector3(0, 60, 200);
+            Vector3 v1 = new Vector3(-60, -60, 100);
+            Vector3 v2 = new Vector3(60, -60, 100);
+            Vector3 v3 = new Vector3(0, 0, 300);
+            Vector3 n0 = Vector3.Normalize(new Vector3(0, 2, 1));
+            Vector3 n1 = Vector3.Normalize(new Vector3(-2, -2, 1));
+            Vector3 n2 = Vector3.Normalize(new Vector3(2, -2, 1));
+            Vector3 n3 = Vector3.Normalize(new Vector3(0, 0, 3));
 
-            Triangle tri = new Triangle(pA, pB, pC, normal, normal, normal);
-            tri.color = new Color3(1, 0, 0); // Red
-            primitives.Add(tri);
+            // f1
+            Triangle t1 = new Triangle(v0, v1, v2, n0, n1, n2);
+            t1.color = new Color3(1, 0, 0); // Red
+            t1.interpolateNormals = true;
 
+            // f2
+            Triangle t2 = new Triangle(v0, v1, v3, n0, n1, n3);
+            t2.color = new Color3(0, 1, 0); // Green
+            t2.interpolateNormals = true;
+
+            // f3
+            Triangle t3 = new Triangle(v1, v2, v3, n1, n2, n3);
+            t3.color = new Color3(0, 0, 1); // Blue
+            t3.interpolateNormals = true;
+
+            // f4
+            Triangle t4 = new Triangle(v2, v0, v3, n2, n0, n3);
+            t4.color = new Color3(1, 1, 0); // Yellow
+            t4.interpolateNormals = true;
+            primitives.Add(t1);
+            primitives.Add(t2);
+            primitives.Add(t3);
+            primitives.Add(t4);
 
             Vector3 camPosition = new Vector3(0, 0, 0);
             Vector3 forwardDir = new Vector3(0, 0, 1);
