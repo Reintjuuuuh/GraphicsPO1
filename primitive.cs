@@ -78,11 +78,9 @@ public class Sphere : Primitive {
             if (distanceMin < distancePlus) {
 				Vector3 normal = intersectionPointMin - this.position;
 				closestIntersection = new Intersection(intersectionPointMin, distanceMin, this, normal);
-				closestIntersection.secondPoint = intersectionPointPlus;
 			} else {
 				Vector3 normal = intersectionPointPlus - this.position;
                 closestIntersection = new Intersection(intersectionPointPlus, distancePlus, this, normal);
-                closestIntersection.secondPoint = intersectionPointMin;
             }
         }
 
@@ -140,7 +138,6 @@ public class Plane : Primitive {
 
 public class Intersection : IComparable<Intersection>{
 	public Vector3 position;
-	public Vector3 secondPoint;
 	public float distance;
 	public Primitive primitive;
 	public Vector3 normal;

@@ -45,7 +45,7 @@ public class Raytracer
                 List<Intersection> shadowRayIntersections = GetIntersections(shadowRay);
 
                 //If there is one check if it is between the light and the primitive
-                float epsilon = 1f;
+                float epsilon = 0.01f;
                 bool primitiveBetweenLight = false;
                 float tmax = Vector3.Distance(shadowOrigin, light.location);
                 foreach (Intersection intersection in shadowRayIntersections) {
@@ -55,18 +55,18 @@ public class Raytracer
                         break;
                     }
                 }
-
+                
                 if (primitiveBetweenLight) {
                     continue;
                 } else {
-                    Vector3 lightVector = -1 * shadowRay.directionVector;
                     Vector3 normal = Vector3.Normalize(closestIntersection.normal);
-                    Vector3 reflectedVector = Vector3.Normalize(lightVector - 2 * Vector3.Dot(lightVector, normal) * normal);
+                    Vector3 reflectedVector = Vector3.Normalize(viewRay.directionVector - 2 * Vector3.Dot(viewRay.directionVector, normal) * normal);
                     Vector3 inverseViewRay = Vector3.Normalize(-viewRay.directionVector);
 
-                    if (closestIntersection.primitive.isMirror && bounces < 10) {
+                    if (closestIntersection.primitive.isMirror && bounces < 8) {
                         bounces += 1;
-                        pixelCol += new Color3(0.5f, 0.5f, 0.5f) * TraceRay(closestIntersection.position, reflectedVector, bounces);
+                        float offset = 1f;
+                        pixelCol += new Color3(0.5f, 0.5f, 0.5f) * TraceRay(closestIntersection.position + offset * reflectedVector, reflectedVector, bounces);
                     } else {
                         //Calculate light color
                         float r = closestIntersection.primitive.Distance(light.location);
