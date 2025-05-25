@@ -131,8 +131,6 @@ public class Raytracer
         {
             return null;
             //create fake intersection far away.
-            Vector3 intersectionPoint = ray.orgin + ray.directionVector * 10000;
-            return new Intersection(intersectionPoint, Vector3.Distance(intersectionPoint, ray.orgin), new Sphere(new Vector3(0, 0, 0), 0, false), new Vector3(0, 1, 999)); //very cursed, but the normal vector (0, 1, 999) indicates that it is a fake intersection
         }
     }
     public Intersection? DebugShadowRay(Vector3 origin, Vector3 direction, Light light)
