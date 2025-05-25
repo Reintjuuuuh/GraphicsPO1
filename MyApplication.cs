@@ -32,6 +32,7 @@ namespace Template
                 new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0)),
                 new Sphere(new Vector3(200, 0, 200), 100),
                 new Sphere(new Vector3(-200, 100, 0), 50, true),
+                new Sphere(new Vector3(-200, 100, 120), 50, true),
                 new Sphere(new Vector3(200, 250, 200), 200),
                 new Sphere(new Vector3(100, 100, -100), 30),
             };
