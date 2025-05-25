@@ -7,11 +7,16 @@ public abstract class Primitive
 	public Color3 color;
 	public Vector3 position;
     public bool interpolateNormals = false;
+	public bool isMirror = false;
 	public Primitive()
 	{
 		color = new Color3(0, 0, 1);
 	}
 
+	public Primitive(Color3 color, bool isMirror) {
+		this.color = color;
+        this.isMirror = isMirror;
+    }
 
     public abstract Intersection? Intersection(Ray ray);
 	public abstract float Distance(Vector3 point); 
@@ -27,6 +32,11 @@ public class Sphere : Primitive {
         this.radius = radius;
     }
 
+	public Sphere(Vector3 position, int radius, Color3 color, bool isMirror) : base(color, isMirror) {
+        this.position = position;
+        this.radius = radius;
+    }
+
     public override float Distance(Vector3 point) {
 		return Vector3.Distance(position, point) - radius;
     }
@@ -35,6 +45,7 @@ public class Sphere : Primitive {
 		//in de vorm ax^2+bx+c zoals conventie
 		//neem aan dat de directie normalized is, dan is a 1. Sneller
 		//float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
+		
 		Vector3 origin = ray.orgin - position;
 
 		float b = 2f * Vector3.Dot(ray.directionVector, origin);
@@ -68,11 +79,9 @@ public class Sphere : Primitive {
             if (distanceMin < distancePlus) {
 				Vector3 normal = intersectionPointMin - this.position;
 				closestIntersection = new Intersection(intersectionPointMin, distanceMin, this, normal);
-				closestIntersection.secondPoint = intersectionPointPlus;
 			} else {
 				Vector3 normal = intersectionPointPlus - this.position;
                 closestIntersection = new Intersection(intersectionPointPlus, distancePlus, this, normal);
-                closestIntersection.secondPoint = intersectionPointMin;
             }
         }
 
@@ -94,6 +103,12 @@ public class Plane : Primitive {
 		this.normal = Vector3.Normalize(normal);
 		this.pointOnPlane = pointOnPlane;
 		d = -Vector3.Dot(this.normal, pointOnPlane);
+    }
+
+	public Plane(Vector3 normal, Vector3 pointOnPlane, Color3 color, bool isMirror) : base(color, isMirror) {
+        this.normal = Vector3.Normalize(normal);
+        this.pointOnPlane = pointOnPlane;
+        d = -Vector3.Dot(this.normal, pointOnPlane);
     }
 
     public override float Distance(Vector3 point) {
@@ -130,7 +145,6 @@ public class Plane : Primitive {
 
 public class Intersection : IComparable<Intersection>{
 	public Vector3 position;
-	public Vector3 secondPoint;
 	public float distance;
 	public Primitive primitive;
 	public Vector3 normal;
@@ -207,8 +221,7 @@ public class Triangle : Primitive
         {
             finalNormal = Vector3.Normalize(u * nA + v * nB + w * nC);
         }
-
-        return new Intersection(position: P,distance: t,primitive: this,normal: finalNormal);
+        return new Intersection(position: P,distance: t,primitive: this,normal: -finalNormal);
     }
 
     public override float Distance(Vector3 point)

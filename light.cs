@@ -15,3 +15,14 @@ public class Light {
         this.intensity = intensity;
     }
 }
+
+public class SpotLight : Light {
+    public float angle;
+    public Vector3 direction;
+    
+    public SpotLight(Vector3 location, Color3 intensity, Vector3 direction, float angle) : base(location, intensity) {
+        this.direction = direction;
+        this.angle = angle;
+    }
+}
+
