@@ -38,7 +38,7 @@ namespace Template
                 new Sphere(new Vector3(-300, 0, -300), 10, new Color3(0.5f, 0.5f, 0.5f), false)
             };
 
-            float lightIntensity = 2000;
+            float lightIntensity = 20000;
             lights = new List<Light>()
             {
                 new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1) * lightIntensity),
@@ -57,6 +57,40 @@ namespace Template
                 //primitives.Add(new Sphere(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), 1 + random.Next(400), true));
                 //lights.Add(new Light(new Vector3(-1000 + random.Next(2000), -1000 + random.Next(2000), random.Next(1000)), new Color3(1, 1, 1)));
             }
+
+            // vertices van 3d driehoek
+            Vector3 v0 = new Vector3(0, 60, 200);
+            Vector3 v1 = new Vector3(-60, -60, 100);
+            Vector3 v2 = new Vector3(60, -60, 100);
+            Vector3 v3 = new Vector3(0, 0, 300);
+            Vector3 n0 = Vector3.Normalize(new Vector3(0, 2, 1));
+            Vector3 n1 = Vector3.Normalize(new Vector3(-2, -2, 1));
+            Vector3 n2 = Vector3.Normalize(new Vector3(2, -2, 1));
+            Vector3 n3 = Vector3.Normalize(new Vector3(0, 0, 3));
+
+            // f1
+            Triangle t1 = new Triangle(v0, v1, v2, n0, n1, n2);
+            t1.color = new Color3(1, 0, 0); // Red
+            t1.interpolateNormals = true;
+
+            // f2
+            Triangle t2 = new Triangle(v0, v1, v3, n0, n1, n3);
+            t2.color = new Color3(0, 1, 0); // Green
+            t2.interpolateNormals = true;
+
+            // f3
+            Triangle t3 = new Triangle(v1, v2, v3, n1, n2, n3);
+            t3.color = new Color3(0, 0, 1); // Blue
+            t3.interpolateNormals = true;
+
+            // f4
+            Triangle t4 = new Triangle(v2, v0, v3, n2, n0, n3);
+            t4.color = new Color3(1, 1, 0); // Yellow
+            t4.interpolateNormals = true;
+            primitives.Add(t1);
+            primitives.Add(t2);
+            primitives.Add(t3);
+            primitives.Add(t4);
 
             Vector3 camPosition = new Vector3(0, 0, 0);
             Vector3 forwardDir = new Vector3(0, 0, 1);
@@ -326,6 +360,21 @@ namespace Template
                         int planeSize = 3;
 
                         screen.Bar((int)primitivePoint2d.X - planeSize, (int)primitivePoint2d.Y - planeSize, (int)primitivePoint2d.X + planeSize, (int)primitivePoint2d.Y + planeSize, intersect.primitive.color);
+                    }
+                    if (intersect.primitive is Triangle)
+                    {
+                        Vector2 primitiveProjection = ProjectToPixel(intersect.position);
+                        Vector2 primitivePoint2d = primitiveProjection * scale + middleOfScreen;
+
+                        int TriangleSize = 20;
+
+                        Vector2 triangleTop = new Vector2(primitivePoint2d.X, primitivePoint2d.Y - TriangleSize/2);
+                        Vector2 triangleBottomLeft = new Vector2(primitivePoint2d.X + TriangleSize / 2, primitivePoint2d.Y + TriangleSize/2);
+                        Vector2 triangleBottomRight = new Vector2(primitivePoint2d.X - TriangleSize / 2, primitivePoint2d.Y + TriangleSize/2);
+
+                        screen.Line((int)triangleTop.X, (int)triangleTop.Y, (int)triangleBottomLeft.X, (int)triangleBottomLeft.Y, intersect.primitive.color);
+                        screen.Line((int)triangleTop.X, (int)triangleTop.Y, (int)triangleBottomRight.X, (int)triangleBottomRight.Y, intersect.primitive.color);
+                        screen.Line((int)triangleBottomLeft.X, (int)triangleBottomLeft.Y, (int)triangleBottomRight.X, (int)triangleBottomRight.Y, intersect.primitive.color);
                     }
 
                     Vector2 intersectionProjection = ProjectToPixel(intersect.position);

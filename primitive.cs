@@ -6,8 +6,8 @@ public abstract class Primitive
 {
 	public Color3 color;
 	public Vector3 position;
+    public bool interpolateNormals = false;
 	public bool isMirror = false;
-
 	public Primitive()
 	{
 		color = new Color3(0, 0, 1);
@@ -156,8 +156,119 @@ public class Intersection : IComparable<Intersection>{
 		this.normal = Vector3.Normalize(normal);
 	}
 
-    public int CompareTo(Intersection? other) {
+	public int CompareTo(Intersection? other)
+	{
 		return distance.CompareTo(other.distance);
+	}
+}
+
+public class Triangle : Primitive
+{
+    public Vector3 pA, pB, pC;
+    public Vector3 nA, nB, nC;
+
+    public Triangle(Vector3 pA, Vector3 pB, Vector3 pC, Vector3 nA, Vector3 nB, Vector3 nC)
+    {
+        this.pA = pA;
+        this.pB = pB;
+        this.pC = pC;
+        this.nA = nA;
+        this.nB = nB;
+        this.nC = nC;
+    }
+
+    public override Intersection? Intersection(Ray ray)
+    {
+        Vector3 edge1 = pB - pA;
+        Vector3 edge2 = pC - pA;
+        Vector3 normal = Vector3.Normalize(Vector3.Cross(edge1, edge2));
+
+        float deler = Vector3.Dot(normal, ray.directionVector);
+        if (deler > -0.00001f && deler < 0.00001f)
+            return null;
+
+        float t = Vector3.Dot(pA - ray.orgin, normal) / deler;
+        if (t < 0)
+            return null;
+
+        Vector3 P = ray.orgin + t * ray.directionVector;
+
+        // edge orientation
+        Vector3 c0 = Vector3.Cross(pB - pA, P - pA);
+        Vector3 c1 = Vector3.Cross(pC - pB, P - pB);
+        Vector3 c2 = Vector3.Cross(pA - pC, P - pC);
+
+        if (Vector3.Dot(c0, normal) < 0) return null;
+        if (Vector3.Dot(c1, normal) < 0) return null;
+        if (Vector3.Dot(c2, normal) < 0) return null;
+
+        // barycentric coords (zie slides)
+        Vector3 v0 = pB - pA;
+        Vector3 v1 = pC - pA;
+        Vector3 v2 = P - pA;
+        float d00 = Vector3.Dot(v0, v0);
+        float d01 = Vector3.Dot(v0, v1);
+        float d11 = Vector3.Dot(v1, v1);
+        float d20 = Vector3.Dot(v2, v0);
+        float d21 = Vector3.Dot(v2, v1);
+        float delerBary = d00 * d11 - d01 * d01;
+        float v = (d11 * d20 - d01 * d21) / delerBary;
+        float w = (d00 * d21 - d01 * d20) / delerBary;
+        float u = 1.0f - v - w;
+
+        Vector3 finalNormal = normal;
+        if (interpolateNormals)
+        {
+            finalNormal = Vector3.Normalize(u * nA + v * nB + w * nC);
+        }
+        return new Intersection(position: P,distance: t,primitive: this,normal: -finalNormal);
+    }
+
+    public override float Distance(Vector3 point)
+    {
+        Vector3 edge1 = pB - pA;
+        Vector3 edge2 = pC - pA;
+        Vector3 normal = Vector3.Normalize(Vector3.Cross(edge1, edge2));
+
+        // projecteer punt op plane
+        float afstandTotPlane = Vector3.Dot(point - pA, normal);
+        Vector3 projected = point - afstandTotPlane * normal;
+
+        // edge orentation checks
+        Vector3 c0 = Vector3.Cross(pB - pA, projected - pA);
+        Vector3 c1 = Vector3.Cross(pC - pB, projected - pB);
+        Vector3 c2 = Vector3.Cross(pA - pC, projected - pC);
+
+        if (Vector3.Dot(c0, normal) >= 0 && Vector3.Dot(c1, normal) >= 0 && Vector3.Dot(c2, normal) >= 0)
+        {
+            // binnen triangle
+            return Math.Abs(afstandTotPlane);
+        }
+        else
+        {
+            // buiten triangle: hoek AB
+            Vector3 ab = pB - pA;
+            float tAB = Vector3.Dot(point - pA, ab) / Vector3.Dot(ab, ab);
+            tAB = Math.Clamp(tAB, 0, 1);
+            Vector3 closestAB = pA + tAB * ab;
+            float dAB = Vector3.Distance(point, closestAB);
+
+            // hoek BC
+            Vector3 bc = pC - pB;
+            float tBC = Vector3.Dot(point - pB, bc) / Vector3.Dot(bc, bc);
+            tBC = Math.Clamp(tBC, 0, 1);
+            Vector3 closestBC = pB + tBC * bc;
+            float dBC = Vector3.Distance(point, closestBC);
+
+            // hoek CA
+            Vector3 ca = pA - pC;
+            float tCA = Vector3.Dot(point - pC, ca) / Vector3.Dot(ca, ca);
+            tCA = Math.Clamp(tCA, 0, 1);
+            Vector3 closestCA = pC + tCA * ca;
+            float dCA = Vector3.Distance(point, closestCA);
+
+            return Math.Min(dAB, Math.Min(dBC, dCA));
+        }
     }
 }
 

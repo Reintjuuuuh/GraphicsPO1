@@ -27,7 +27,6 @@ public class Raytracer
         if (viewIntersections.Count > 0)
         {
             Intersection closestIntersection = viewIntersections.Min();
-
             //Finding intersection points that the light also hits
             //Shoot for each light a ray from the primitive intersection to the light source
             //For now this only works with one light
@@ -59,9 +58,13 @@ public class Raytracer
                 //If there is one check if it is between the light and the primitive
                 bool primitiveBetweenLight = CheckForPrimitiveBetweenLight(shadowRay, light);
                 if (primitiveBetweenLight) {
+                    //Console.WriteLine("primitiveBetweenLight");
                     continue;
                 } else {
+                    //Console.WriteLine("before");
                     pixelCol += PhongShadingModel(closestIntersection, shadowRay, viewRay, light);
+                    //Console.WriteLine("after");
+
                 }
             }
             return pixelCol + ambientLight;
@@ -91,6 +94,10 @@ public class Raytracer
         float r = intersection.primitive.Distance(light.location);
 
         float diffuseFactor = Math.Max(Vector3.Dot(Vector3.Normalize(intersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
+
+        //Console.WriteLine($"intersection.normal = {intersection.normal}, shadowRay.directionVector = {shadowRay.directionVector}");
+        //Console.WriteLine($"intersection.normal");
+
         Color3 Kd = intersection.primitive.color;
 
         float n = 2f;
@@ -102,6 +109,7 @@ public class Raytracer
         float B = light.intensity.B * (1 / (r * r)) * (diffuseFactor * Kd.B + glossyFactor * Ks.B);
 
         Color3 Color = (R, G, B);
+
         return Color;
     }
 
