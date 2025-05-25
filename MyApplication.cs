@@ -29,19 +29,21 @@ namespace Template
         public void Init()
         {
             primitives = new List<Primitive>() {
-                new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0)),
+                new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0), new Color3(1, 1, 1), false),
                 new Sphere(new Vector3(200, 0, 200), 100),
-                new Sphere(new Vector3(-200, 100, 0), 50, true),
-                new Sphere(new Vector3(-200, 100, 120), 50, true),
+                new Sphere(new Vector3(-200, 100, 0), 50, new Color3(0, 0, 1),true),
+                new Sphere(new Vector3(-200, 100, 120), 50, new Color3(1, 0, 0), true),
                 new Sphere(new Vector3(200, 250, 200), 200),
                 new Sphere(new Vector3(100, 100, -100), 30),
+                new Sphere(new Vector3(-300, 0, -300), 10, new Color3(0.5f, 0.5f, 0.5f), false)
             };
 
             float lightIntensity= 10000;
             lights = new List<Light>()
             {
                 new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1) * lightIntensity),
-                new Light(new Vector3(0, 100, 0), new Color3(1, 1, 1) * lightIntensity)
+                new Light(new Vector3(0, 100, 0), new Color3(1, 1, 1) * lightIntensity),
+                new SpotLight(new Vector3(-300, 30, -300), new Color3(0, 1, 0) * lightIntensity * 4, new Vector3(0, -1, 0), (float) Math.PI / 3)
             };
 
             int primitiveCount = 5;

@@ -40,7 +40,14 @@ public class Raytracer
                 Vector3 shadowDirection = Vector3.Normalize(light.location - closestIntersection.position);
                 Vector3 shadowOrigin = closestIntersection.position;
                 Ray shadowRay = new Ray(shadowOrigin, shadowDirection);
-                
+
+                if (light is SpotLight) {
+                    SpotLight spotLight = light as SpotLight;
+                    if (Math.Acos(Vector3.Dot(-shadowRay.directionVector, spotLight.direction)) > spotLight.angle) {
+                        continue;
+                    }
+                }
+
                 //Check for intersections of the light ray
                 List<Intersection> shadowRayIntersections = GetIntersections(shadowRay);
 
@@ -66,7 +73,7 @@ public class Raytracer
                     if (closestIntersection.primitive.isMirror && bounces < 8) {
                         bounces += 1;
                         float offset = 1f;
-                        pixelCol += new Color3(0.5f, 0.5f, 0.5f) * TraceRay(closestIntersection.position + offset * reflectedVector, reflectedVector, bounces);
+                        pixelCol += closestIntersection.primitive.color * TraceRay(closestIntersection.position + offset * reflectedVector, reflectedVector, bounces);
                     } else {
                         //Calculate light color
                         float r = closestIntersection.primitive.Distance(light.location);

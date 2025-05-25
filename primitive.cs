@@ -13,9 +13,9 @@ public abstract class Primitive
 		color = new Color3(0, 0, 1);
 	}
 
-	public Primitive(bool isMirror) {
-        color = new Color3(0.7f, 0.7f, 0.7f);
-		this.isMirror = isMirror;
+	public Primitive(Color3 color, bool isMirror) {
+		this.color = color;
+        this.isMirror = isMirror;
     }
 
     public abstract Intersection? Intersection(Ray ray);
@@ -32,7 +32,7 @@ public class Sphere : Primitive {
         this.radius = radius;
     }
 
-	public Sphere(Vector3 position, int radius, bool isMirror) : base(isMirror) {
+	public Sphere(Vector3 position, int radius, Color3 color, bool isMirror) : base(color, isMirror) {
         this.position = position;
         this.radius = radius;
     }
@@ -45,6 +45,7 @@ public class Sphere : Primitive {
 		//in de vorm ax^2+bx+c zoals conventie
 		//neem aan dat de directie normalized is, dan is a 1. Sneller
 		//float a = MathF.Pow(ray.directionVector.X, 2) + MathF.Pow(ray.directionVector.Y, 2) + MathF.Pow(ray.directionVector.Z, 2);
+		
 		Vector3 origin = ray.orgin - position;
 
 		float b = 2f * Vector3.Dot(ray.directionVector, origin);
@@ -102,6 +103,12 @@ public class Plane : Primitive {
 		this.normal = Vector3.Normalize(normal);
 		this.pointOnPlane = pointOnPlane;
 		d = -Vector3.Dot(this.normal, pointOnPlane);
+    }
+
+	public Plane(Vector3 normal, Vector3 pointOnPlane, Color3 color, bool isMirror) : base(color, isMirror) {
+        this.normal = Vector3.Normalize(normal);
+        this.pointOnPlane = pointOnPlane;
+        d = -Vector3.Dot(this.normal, pointOnPlane);
     }
 
     public override float Distance(Vector3 point) {
