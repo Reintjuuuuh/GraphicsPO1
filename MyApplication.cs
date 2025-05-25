@@ -291,7 +291,7 @@ namespace Template
             Vector3 downRight = camera.screenPlane.downRight;
             Vector3 downLeft = camera.screenPlane.downLeft;
 
-            for (int col = -screenX; col < screenX; col += 10)
+            for (int col = -screenX; col < screenX; col += 50)
             {
                 //normalize to 0-1
                 float u = (col + screenX) / (float)screen.width;
@@ -307,25 +307,63 @@ namespace Template
 
                 Intersection? intersect = raytracer.DebugRay(camera.position, direction);
 
-                if (intersect.primitive is Plane)
+                if (intersect == null)
                 {
-                    Vector2 primitiveProjection = ProjectToPixel(intersect.position);
-                    Vector2 primitivePoint2d = primitiveProjection * scale + middleOfScreen;
+                    Vector3 intersectionPoint = camera.position + direction * 10000;
+                    Vector2 intersectionProjection = ProjectToPixel(intersectionPoint);
+                    Vector2 intersectionPoint2d = intersectionProjection * scale + middleOfScreen;
 
-                    int planeSize = 3;
-
-                    screen.Bar((int)primitivePoint2d.X - planeSize, (int)primitivePoint2d.Y - planeSize, (int)primitivePoint2d.X + planeSize, (int)primitivePoint2d.Y + planeSize, intersect.primitive.color);
+                    screen.Line((int)camPoint2d.X, (int)camPoint2d.Y, (int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, new Color3(1f, 0f, 0f));
                 }
 
                 if (intersect != null)
                 {
+                    if (intersect.primitive is Plane)
+                    {
+                        Vector2 primitiveProjection = ProjectToPixel(intersect.position);
+                        Vector2 primitivePoint2d = primitiveProjection * scale + middleOfScreen;
+
+                        int planeSize = 3;
+
+                        screen.Bar((int)primitivePoint2d.X - planeSize, (int)primitivePoint2d.Y - planeSize, (int)primitivePoint2d.X + planeSize, (int)primitivePoint2d.Y + planeSize, intersect.primitive.color);
+                    }
+
                     Vector2 intersectionProjection = ProjectToPixel(intersect.position);
                     Vector2 intersectionPoint2d = intersectionProjection * scale + middleOfScreen;
 
                     screen.Line((int)camPoint2d.X, (int)camPoint2d.Y, (int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, new Color3(1f, 0f, 0f));
 
+                    //check if mirror, then draw reflective ray.
+                    int bounces = 0;
+                    while (bounces < 8 && intersect != null && intersect.primitive.isMirror)
+                    {
+                        bounces++;
+                        Vector3 normal = Vector3.Normalize(intersect.normal);
+                        direction = Vector3.Normalize(direction - 2 * Vector3.Dot(direction, normal) * normal);
+
+                        Vector3 startingPos = intersect.position;
+                        Vector3 startingPosEpsilon = intersect.position + normal;
+
+                        Vector2 startingPosProjection = ProjectToPixel(startingPos);
+                        Vector2 startingPosPoint2d = startingPosProjection * scale + middleOfScreen;
+
+                        intersect = raytracer.DebugRay(startingPosEpsilon, direction, true);
+
+                        if (intersect == null)
+                        {
+                            Vector3 fakeIntersectionPoint = startingPos + direction * 10000;
+                            Vector2 fakeIntersectionProjection = ProjectToPixel(fakeIntersectionPoint);
+                            Vector2 fakeIntersectionPoint2d = fakeIntersectionProjection * scale + middleOfScreen;
+                            screen.Line((int)startingPosPoint2d.X, (int)startingPosPoint2d.Y, (int)fakeIntersectionPoint2d.X, (int)fakeIntersectionPoint2d.Y, new Color3(0.1f, 0.1f, 0.1f)); //draw gray line if reflection goes on forever
+                            break;
+                        }
+                        intersectionProjection = ProjectToPixel(intersect.position);
+                        intersectionPoint2d = intersectionProjection * scale + middleOfScreen;
+                        
+                        screen.Line((int)startingPosPoint2d.X, (int)startingPosPoint2d.Y, (int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, new Color3(1f, 1f, 1f)); //draw white line for intersection point
+                    }
                     //draw shadowrays //bug: shadowrays get drawn when looking at an unilluminated surface, like the back of a sphere //bug2: with planes, the shadowrays can overextend the light source. Tmax not set correctly? epsilon?
-                    if (intersect.position != camera.position + direction * 10000)
+                    if (intersect != null)
                     {
                         float lightOffset = 0;
                         foreach (Light light in lights)
@@ -341,7 +379,8 @@ namespace Template
                                 if (shadowIntersect.position == light.location)
                                 {
                                     screen.Line((int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, (int)shadowPoint2d.X, (int)shadowPoint2d.Y, new Color3(1f + lightOffset, 0.5f + lightOffset, 0f + lightOffset));
-                                } else
+                                }
+                                else
                                 {
                                     screen.Line((int)intersectionPoint2d.X, (int)intersectionPoint2d.Y, (int)shadowPoint2d.X, (int)shadowPoint2d.Y, new Color3(0.7f + lightOffset, 0.7f + lightOffset, 0f + lightOffset));
                                 }

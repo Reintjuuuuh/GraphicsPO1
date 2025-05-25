@@ -118,19 +118,10 @@ public class Raytracer
         return false;
     }
 
-    public Intersection? DebugRay(Vector3 cameraPos, Vector3 direction)
+    public Intersection? DebugRay(Vector3 cameraPos, Vector3 direction, bool isMirrorRay = false)
     {
         Ray ray = new Ray(cameraPos, direction);
-        List<Intersection> intersections = new();
-
-        foreach (Primitive primitive in scene.primitives)
-        {
-            Intersection intersection = primitive.Intersection(ray);
-            if (intersection != null)
-            {
-                intersections.Add(intersection);
-            }
-        }
+        List<Intersection> intersections = GetIntersections(ray);
 
         if (intersections.Count > 0)
         {
@@ -138,9 +129,8 @@ public class Raytracer
         }
         else
         {
+            return null;
             //create fake intersection far away.
-            Vector3 intersectionPoint = ray.orgin + ray.directionVector * 10000;
-            return new Intersection(intersectionPoint, Vector3.Distance(intersectionPoint, ray.orgin), null, new Vector3(0, 1, 999)); //very cursed, but the normal vector (0, 1, 999) indicates that it is a fake intersection
         }
     }
     public Intersection? DebugShadowRay(Vector3 origin, Vector3 direction, Light light)
