@@ -69,7 +69,7 @@ namespace Template
             Vector3 n3 = Vector3.Normalize(new Vector3(0, 0, 3));
 
             // f1
-            Triangle t1 = new Triangle(v0, v1, v2, n0, n1, n2);
+            Triangle t1 = new Triangle(v0, v2, v1, n0, n2, n1);
             t1.color = new Color3(1, 0, 0); // Red
             t1.interpolateNormals = true;
 
@@ -454,6 +454,7 @@ namespace Template
             if (keyboard[Keys.D]) movementVector += camera.rightDirection;
             if (keyboard[Keys.Space]) movementVector += camera.upDirection;
             if (keyboard[Keys.LeftShift]) movementVector -= camera.upDirection;
+            if (keyboard[Keys.I]) lights.Add(new Light(new Vector3(camera.position.X, camera.position.Y, camera.position.Z), new Color3(1, 1, 1) * 2000));
 
             camera.position += movementVector * deltaTime * movementSpeed;
         }

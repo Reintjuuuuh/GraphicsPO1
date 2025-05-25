@@ -221,7 +221,7 @@ public class Triangle : Primitive
         {
             finalNormal = Vector3.Normalize(u * nA + v * nB + w * nC);
         }
-        return new Intersection(position: P,distance: t,primitive: this,normal: -finalNormal);
+        return new Intersection(position: P,distance: t,primitive: this,normal: finalNormal);
     }
 
     public override float Distance(Vector3 point)
