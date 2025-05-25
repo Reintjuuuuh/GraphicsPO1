@@ -28,8 +28,9 @@ namespace Template
         // initialize
         public void Init()
         {
+            Surface floorTexture = new Surface("../../../assets/floor.png");
             primitives = new List<Primitive>() {
-                new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0))
+            new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0), floorTexture)
             };
 
             lights = new List<Light>()
@@ -37,6 +38,7 @@ namespace Template
                 new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1)),
                 new Light(new Vector3(0, 0, 1000), new Color3(1, 1, 1))
             };
+
 
             int primitiveCount = 5;
             Random random = new Random();

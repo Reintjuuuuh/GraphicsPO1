@@ -24,6 +24,8 @@ public class Raytracer
         Ray viewRay = new Ray(cameraPosition, viewDirection);
         List<Intersection> viewIntersections = GetIntersections(viewRay);
 
+
+
         if (viewIntersections.Count > 0)
         {
             Intersection closestIntersection = viewIntersections.Min();
@@ -35,44 +37,65 @@ public class Raytracer
 
             if (!scene.lights.Any()) return new Color3(0, 0, 0); //In case of no lights
 
-            Color3 pixelCol = new Color3(0,0,0);
-            foreach (Light light in scene.lights) {
-                Vector3 shadowDirection = Vector3.Normalize(light.location - closestIntersection.position);
-                Vector3 shadowOrigin = closestIntersection.position;
-                Ray shadowRay = new Ray(shadowOrigin, shadowDirection);
-                
-                //Check for intersections of the light ray
-                List<Intersection> shadowRayIntersections = GetIntersections(shadowRay);
+            Color3 pixelCol = new Color3(0, 0, 0);
+        Color3 baseColor = closestIntersection.primitive.color;
 
-                //If there is one check if it is between the light and the primitive
-                float epsilon = 1f;
-                bool primitiveBetweenLight = false;
-                float tmax = Vector3.Distance(shadowOrigin, light.location);
-                foreach (Intersection intersection in shadowRayIntersections) {
-                    float t = Vector3.Distance(shadowOrigin, intersection.position);
-                    if ((t > epsilon && t < tmax - epsilon)) {
-                        primitiveBetweenLight = true;
-                        break;
-                    }
-                }
+        if (closestIntersection.primitive is Plane plane && plane.texture != null)
+        {
+            var (u, v) = plane.GetUV(closestIntersection.position);
+            int texX = (int)(u * plane.texture.width) % plane.texture.width;
+            int texY = (int)(v * plane.texture.height) % plane.texture.height;
+            int colorInt = plane.texture.pixels[texX + texY * plane.texture.width];
+            baseColor = new Color3(
+                ((colorInt >> 16) & 0xFF) / 255f,
+                ((colorInt >> 8) & 0xFF) / 255f,
+                (colorInt & 0xFF) / 255f
+            );
+        }
 
-                if (primitiveBetweenLight) {
-                    continue;
-                } else {
-                    //Calculate light color
-                    float r = closestIntersection.primitive.Distance(light.location);
+        foreach (Light light in scene.lights)
+        {
+            Vector3 schaduwRichting = Vector3.Normalize(light.location - closestIntersection.position);
+            Vector3 schaduwOorsprong = closestIntersection.position;
+            Ray shadowRay = new Ray(schaduwOorsprong, schaduwRichting);
 
-                    float dotProduct = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
-                    //Console.Write(dotProduct);
-                    float R = (light.intensity.R * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.R;
-                    float G = (light.intensity.G * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.G;
-                    float B = (light.intensity.B * (1 / r * r) * dotProduct) * closestIntersection.primitive.color.B;
+            //controleer voor intersections van light ray
+            List<Intersection> shadowRayIntersections = GetIntersections(shadowRay);
 
-                    Color3 Color = (R, G, B);
-                    pixelCol += Color;
+            //als er een intersectie is check tussen licht en primitive
+            float epsilon = 1f;
+            bool primitiveTussenLicht = false;
+            float tmax = Vector3.Distance(schaduwOorsprong, light.location);
+            foreach (Intersection intersection in shadowRayIntersections)
+            {
+                float t = Vector3.Distance(schaduwOorsprong, intersection.position);
+                if ((t > epsilon && t < tmax - epsilon))
+                {
+                    primitiveTussenLicht = true;
+                    break;
                 }
             }
-            return pixelCol + ambientLight;
+
+            if (primitiveTussenLicht)
+            {
+                continue;
+            }
+            else
+            {
+                //bereken licht kleur
+                float R = closestIntersection.primitive.Distance(light.location);
+
+                float dotpro = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
+                float r = (light.intensity.R * (1 / R * R) * dotpro) * baseColor.R;
+                float g = (light.intensity.G * (1 / R * R) * dotpro) * baseColor.G;
+                float b = (light.intensity.B * (1 / R * R) * dotpro) * baseColor.B;
+
+                Color3 Color = new Color3(r, g, b);
+                pixelCol += Color;
+            }
+        }
+        return pixelCol + ambientLight;
+
             
         }
         else
