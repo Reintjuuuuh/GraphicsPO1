@@ -42,9 +42,13 @@ namespace Template
             lights = new List<Light>()
             {
                 new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1) * lightIntensity),
-                new Light(new Vector3(0, 100, 0), new Color3(1, 1, 1) * lightIntensity),
+                new Light(new Vector3(300, 100, 0), new Color3(1, 1, 1) * 2 * lightIntensity),
                 new SpotLight(new Vector3(-300, 30, -300), new Color3(0, 1, 0) * lightIntensity, new Vector3(0, -1, 0), (float) Math.PI / 3)
             };
+
+            foreach(Light light in lights) {
+                primitives.Add(new Sphere(light.location + new Vector3(0, 15, 0), 5, new Color3(0, 1, 0), false));
+            }
 
             int primitiveCount = 5;
             Random random = new Random();
