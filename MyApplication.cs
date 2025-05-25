@@ -38,7 +38,7 @@ namespace Template
                 new Sphere(new Vector3(-300, 0, -300), 10, new Color3(0.5f, 0.5f, 0.5f), false)
             };
 
-            float lightIntensity = 20000;
+            float lightIntensity = 2000;
             lights = new List<Light>()
             {
                 new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1) * lightIntensity),
