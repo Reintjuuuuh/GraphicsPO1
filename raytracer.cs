@@ -36,6 +36,11 @@ public class Raytracer
             if (!scene.lights.Any()) return new Color3(0, 0, 0); //In case of no lights
 
             Color3 pixelCol = new Color3(0,0,0);
+
+            if (closestIntersection.primitive.isMirror && bounces < 8) {
+                pixelCol += MirrorRay(closestIntersection, viewRay, bounces);
+            }
+
             foreach (Light light in scene.lights) {
                 Vector3 shadowDirection = Vector3.Normalize(light.location - closestIntersection.position);
                 Vector3 shadowOrigin = closestIntersection.position;
@@ -52,46 +57,11 @@ public class Raytracer
                 List<Intersection> shadowRayIntersections = GetIntersections(shadowRay);
 
                 //If there is one check if it is between the light and the primitive
-                float epsilon = 0.01f;
-                bool primitiveBetweenLight = false;
-                float tmax = Vector3.Distance(shadowOrigin, light.location);
-                foreach (Intersection intersection in shadowRayIntersections) {
-                    float t = Vector3.Distance(shadowOrigin, intersection.position);
-                    if ((t > epsilon && t < tmax - epsilon)) {
-                        primitiveBetweenLight = true;
-                        break;
-                    }
-                }
-                
+                bool primitiveBetweenLight = CheckForPrimitiveBetweenLight(shadowRay, light);
                 if (primitiveBetweenLight) {
                     continue;
                 } else {
-                    Vector3 normal = Vector3.Normalize(closestIntersection.normal);
-                    Vector3 reflectedVector = Vector3.Normalize(viewRay.directionVector - 2 * Vector3.Dot(viewRay.directionVector, normal) * normal);
-                    Vector3 inverseViewRay = Vector3.Normalize(-viewRay.directionVector);
-
-                    if (closestIntersection.primitive.isMirror && bounces < 8) {
-                        bounces += 1;
-                        float offset = 1f;
-                        pixelCol += closestIntersection.primitive.color * TraceRay(closestIntersection.position + offset * reflectedVector, reflectedVector, bounces);
-                    } else {
-                        //Calculate light color
-                        float r = closestIntersection.primitive.Distance(light.location);
-
-                        float diffuseFactor = Math.Max(Vector3.Dot(Vector3.Normalize(closestIntersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
-                        Color3 Kd = closestIntersection.primitive.color;
-
-                        float n = 2f;
-                        float glossyFactor = (float)Math.Pow(Math.Max(Vector3.Dot(reflectedVector, inverseViewRay), 0), n);
-                        Color3 Ks = new Color3(0.9f, 0.9f, 0.9f);
-
-                        float R = light.intensity.R * (1 / (r * r)) * (diffuseFactor * Kd.R + glossyFactor * Ks.R);
-                        float G = light.intensity.G * (1 / (r * r)) * (diffuseFactor * Kd.G + glossyFactor * Ks.G);
-                        float B = light.intensity.B * (1 / (r * r)) * (diffuseFactor * Kd.B + glossyFactor * Ks.B);
-
-                        Color3 Color = (R, G, B);
-                        pixelCol += Color;
-                    }
+                    pixelCol += PhongShadingModel(closestIntersection, shadowRay, viewRay, light);
                 }
             }
             return pixelCol + ambientLight;
@@ -102,6 +72,51 @@ public class Raytracer
             return new Color3(0f, 0f, 0f);
         }
 	}
+    
+    public Color3 MirrorRay(Intersection intersection, Ray viewRay, int bounces) {
+        Vector3 normal = Vector3.Normalize(intersection.normal);
+        Vector3 reflectedVector = Vector3.Normalize(viewRay.directionVector - 2 * Vector3.Dot(viewRay.directionVector, normal) * normal);
+        bounces += 1;
+        float offset = 1f;
+        Color3 color = intersection.primitive.color * TraceRay(intersection.position + offset * reflectedVector, reflectedVector, bounces);
+        return color;
+    }
+
+    public Color3 PhongShadingModel(Intersection intersection, Ray shadowRay, Ray viewRay, Light light) {
+        Vector3 normal = Vector3.Normalize(intersection.normal);
+        Vector3 reflectedVector = Vector3.Normalize(-shadowRay.directionVector - 2 * Vector3.Dot(-shadowRay.directionVector, normal) * normal);
+        Vector3 inverseViewRay = Vector3.Normalize(-viewRay.directionVector);
+
+        //Calculate light color
+        float r = intersection.primitive.Distance(light.location);
+
+        float diffuseFactor = Math.Max(Vector3.Dot(Vector3.Normalize(intersection.normal), Vector3.Normalize(shadowRay.directionVector)), 0);
+        Color3 Kd = intersection.primitive.color;
+
+        float n = 2f;
+        float glossyFactor = (float)Math.Pow(Math.Max(Vector3.Dot(reflectedVector, inverseViewRay), 0), n);
+        Color3 Ks = new Color3(0.9f, 0.9f, 0.9f);
+
+        float R = light.intensity.R * (1 / (r * r)) * (diffuseFactor * Kd.R + glossyFactor * Ks.R);
+        float G = light.intensity.G * (1 / (r * r)) * (diffuseFactor * Kd.G + glossyFactor * Ks.G);
+        float B = light.intensity.B * (1 / (r * r)) * (diffuseFactor * Kd.B + glossyFactor * Ks.B);
+
+        Color3 Color = (R, G, B);
+        return Color;
+    }
+
+    public bool CheckForPrimitiveBetweenLight(Ray shadowRay, Light light) {
+        List<Intersection> shadowRayIntersections = GetIntersections(shadowRay);
+        float epsilon = 0.01f;
+        float tmax = Vector3.Distance(shadowRay.orgin, light.location);
+        foreach (Intersection intersection in shadowRayIntersections) {
+            float t = Vector3.Distance(shadowRay.orgin, intersection.position);
+            if ((t > epsilon && t < tmax - epsilon)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public Intersection? DebugRay(Vector3 cameraPos, Vector3 direction)
     {
