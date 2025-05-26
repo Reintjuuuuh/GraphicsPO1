@@ -100,7 +100,9 @@ public class Plane : Primitive {
 	public float d;
 	public Surface? texture; // om texture in op te slaan
 
-	public Plane(Vector3 normal, Vector3 pointOnPlane, Surface? texture = null) {
+    public Plane(Vector3 normal, Vector3 pointOnPlane, Color3 color, Surface? texture = null, bool isMirror = false)
+    : base(color, isMirror)
+    {
 		this.normal = Vector3.Normalize(normal);
 		this.pointOnPlane = pointOnPlane;
 		d = -Vector3.Dot(this.normal, pointOnPlane);

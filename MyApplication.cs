@@ -30,7 +30,7 @@ namespace Template
         {
             Surface floorTexture = new Surface("../../../assets/floor.png");
             primitives = new List<Primitive>() {
-                new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0), new Color3(1, 1, 1), true),
+                new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0), new Color3(1, 1, 1), texture:floorTexture, true),
                 new Sphere(new Vector3(200, 0, 200), 100),
                 new Sphere(new Vector3(-200, 100, 0), 50, new Color3(0, 0, 1),true),
                 new Sphere(new Vector3(-200, 100, 120), 50, new Color3(1, 1, 1), true),
