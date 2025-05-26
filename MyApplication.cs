@@ -28,6 +28,7 @@ namespace Template
         // initialize
         public void Init()
         {
+            Surface floorTexture = new Surface("../../../assets/floor.png");
             primitives = new List<Primitive>() {
                 new Plane(new Vector3(0, 1, 0), new Vector3(0, -100, 0), new Color3(1, 1, 1), true),
                 new Sphere(new Vector3(200, 0, 200), 100),
@@ -45,6 +46,7 @@ namespace Template
                 new Light(new Vector3(300, 100, 0), new Color3(1, 1, 1) * 2 * lightIntensity),
                 new SpotLight(new Vector3(-300, 30, -300), new Color3(0, 1, 0) * lightIntensity, new Vector3(0, -1, 0), (float) Math.PI / 3)
             };
+
 
             foreach(Light light in lights) {
                 primitives.Add(new Sphere(light.location + new Vector3(0, 15, 0), 5, new Color3(0, 1, 0), false));

@@ -98,11 +98,13 @@ public class Plane : Primitive {
 	public Vector3 pointOnPlane;
 	public float distance;
 	public float d;
+	public Surface? texture; // om texture in op te slaan
 
-	public Plane(Vector3 normal, Vector3 pointOnPlane) {
+	public Plane(Vector3 normal, Vector3 pointOnPlane, Surface? texture = null) {
 		this.normal = Vector3.Normalize(normal);
 		this.pointOnPlane = pointOnPlane;
 		d = -Vector3.Dot(this.normal, pointOnPlane);
+		this.texture = texture;
     }
 
 	public Plane(Vector3 normal, Vector3 pointOnPlane, Color3 color, bool isMirror) : base(color, isMirror) {
@@ -140,6 +142,20 @@ public class Plane : Primitive {
 		float distance = Vector3.Distance(intersectionPoint, ray.orgin);;
 		return new Intersection(intersectionPoint, distance, this, normal);
 	}
+    public (float u, float v) GetUV(Vector3 point)
+    {
+        // kies twee assen evenredig aan de normaalvector
+        Vector3 uAs = Vector3.Normalize(Vector3.Cross(normal, Math.Abs(normal.Y) < 0.99f ? Vector3.UnitY : Vector3.UnitX));
+        Vector3 vAs = Vector3.Normalize(Vector3.Cross(normal, uAs));
+        Vector3 rel = point - pointOnPlane;
+        float u = Vector3.Dot(rel, uAs) * 0.05f; // schalen
+        float v = Vector3.Dot(rel, vAs) * 0.05f;
+        // herhaal elke 1
+        u = u - (float)Math.Floor(u);
+        v = v - (float)Math.Floor(v);
+        return (u, v);
+    }
+
 }
 
 
