@@ -25,7 +25,7 @@ namespace Template
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             this.screen = screen;
         }
-        // initialize
+        // initialize all primitives and lights
         public void Init()
         {
             Surface floorTexture = new Surface("../../../assets/floor.png");
@@ -39,18 +39,18 @@ namespace Template
                 new Sphere(new Vector3(-300, 0, -300), 10, new Color3(0.5f, 0.5f, 0.5f), false)
             };
 
-            float lightIntensity = 4000;
+            float lightIntensity = 2000;
             lights = new List<Light>()
             {
                 new Light(new Vector3(0, 0, 0), new Color3(1, 1, 1) * lightIntensity),
                 new Light(new Vector3(300, 100, 0), new Color3(1, 1, 1) * 2 * lightIntensity),
-                new Light(new Vector3(-100, 200, 300), new Color3(1, 1, 1) * 4 * lightIntensity),
+                new Light(new Vector3(-100, 50, 300), new Color3(1, 1, 1) * 4 * lightIntensity),
                 new SpotLight(new Vector3(-300, 30, -300), new Color3(0, 1, 0) * lightIntensity, new Vector3(0, -1, 0), (float) Math.PI / 3)
             };
 
 
             foreach(Light light in lights) {
-                primitives.Add(new Sphere(light.location + new Vector3(0, 15, 0), 5, new Color3(0, 1, 0), false));
+                primitives.Add(new Sphere(light.location + new Vector3(0, 15, 0), 5, new Color3(1, 1, 0), false));
             }
 
             int primitiveCount = 5;

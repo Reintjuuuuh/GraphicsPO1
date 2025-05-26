@@ -2,6 +2,7 @@
 using System.Numerics;
 using Template;
 
+//Abstract primitive class because we do not want a primitive object
 public abstract class Primitive
 {
 	public Color3 color;
@@ -18,6 +19,7 @@ public abstract class Primitive
         this.isMirror = isMirror;
     }
 
+    //Every primtive needs to have an intersection and a distance function implemented
     public abstract Intersection? Intersection(Ray ray);
 	public abstract float Distance(Vector3 point); 
 }
@@ -52,10 +54,6 @@ public class Sphere : Primitive {
 		float c = Vector3.Dot(origin, origin) - radius * radius;
 		float d = b * b - 4f * c;
 
-        //float b = (ray.directionVector.X * (ray.orgin.X - position.X) + ray.directionVector.Y * (ray.orgin.Y - position.Y) + ray.directionVector.Z * (ray.orgin.Z - position.Z)) * 2;
-        //float c = MathF.Pow(ray.orgin.X - position.X, 2) + MathF.Pow(ray.orgin.Y - position.Y, 2) + MathF.Pow(ray.orgin.Z - position.Z, 2) - MathF.Pow(radius, 2);
-        //float d = MathF.Pow(b, 2) - 4 * c; //removed times a because 1
-
         Intersection closestIntersection;
 		
 		if(d < 0) {
@@ -72,7 +70,8 @@ public class Sphere : Primitive {
 
             Vector3 intersectionPointMin = ray.orgin + IMin * ray.directionVector;
             Vector3 intersectionPointPlus = ray.orgin + IPlus * ray.directionVector;
-
+            
+            //return the closest intersection point
 			float distanceMin = Vector3.Distance(intersectionPointMin, ray.orgin);
 			float distancePlus = Vector3.Distance(intersectionPointPlus, ray.orgin);
 
@@ -84,7 +83,8 @@ public class Sphere : Primitive {
                 closestIntersection = new Intersection(intersectionPointPlus, distancePlus, this, normal);
             }
         }
-
+        
+        //Do not return an intersection behind the origin of the ray
 		if(Vector3.Dot(Vector3.Normalize((closestIntersection.position - ray.orgin)), Vector3.Normalize(ray.directionVector)) >= 0) {
 			return closestIntersection;
 		} else {
@@ -100,6 +100,7 @@ public class Plane : Primitive {
 	public float d;
 	public Surface? texture; // om texture in op te slaan
 
+    //Plane is made of a normal and point on the place. This was easier than how it was done in the assignment
     public Plane(Vector3 normal, Vector3 pointOnPlane, Color3 color, Surface? texture = null, bool isMirror = false)
     : base(color, isMirror)
     {
@@ -118,10 +119,6 @@ public class Plane : Primitive {
     public override float Distance(Vector3 point) {
         return Math.Abs(Vector3.Dot(normal, point) + d);	
     }
-
-    public float distanceToOrigin() {
-		return 0;
-	}
 
     public override Intersection? Intersection(Ray ray) {
 		//We use the following form: [x, y, z]^t = [p_x, p_y, p_z]^t + I * [d_x, d_y, d_z]^t
@@ -160,7 +157,7 @@ public class Plane : Primitive {
 
 }
 
-
+//An intersection class using the Icomparable so you can easily compare them based on distance to object
 public class Intersection : IComparable<Intersection>{
 	public Vector3 position;
 	public float distance;

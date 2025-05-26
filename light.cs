@@ -16,6 +16,7 @@ public class Light {
     }
 }
 
+// Spotlight is a kind of light with an angle and direction
 public class SpotLight : Light {
     public float angle;
     public Vector3 direction;

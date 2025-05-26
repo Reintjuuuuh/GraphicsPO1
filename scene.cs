@@ -18,6 +18,4 @@ public class Scene1 {
         return null;
     }
 
-    //TODO: intersect method.
-    //Loop over all primitives and return the closest intersection
 }
